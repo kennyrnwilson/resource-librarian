@@ -1,6 +1,6 @@
 # Resource Librarian
 
-A library to help create, maintain and index a digital library of electronic book, youtube transcripts and summaries of them.
+A library to help create, maintain and index a library of digital resources such as electronic books and youtube video transcripts. By organising resources in these forms and in this manner we make the information amenable to processing by modern generative AI systems. 
 
 ## Installation
 
