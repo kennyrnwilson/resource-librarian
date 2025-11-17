@@ -10,6 +10,25 @@
             "justMyCode": true
         },
         {
+            "name": "RL: init command (debug library)",
+            "type": "python",
+            "request": "launch",
+            "module": "resourcelibrarian.__main__",
+            "args": ["/tmp/debug-library"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "purpose": ["debug-test"]
+        },
+        {
+            "name": "RL: init command (custom path)",
+            "type": "python",
+            "request": "launch",
+            "module": "resourcelibrarian.__main__",
+            "args": ["${input:libraryPath}"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
             "name": "pytest: Current File",
             "type": "python",
             "request": "launch",
@@ -26,6 +45,23 @@
             "args": ["tests", "-v"],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "pytest: CLI Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["tests/test_cli_init.py", "-v"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ],
+    "inputs": [
+        {
+            "id": "libraryPath",
+            "type": "promptString",
+            "description": "Path where the library should be initialized",
+            "default": "/tmp/my-library"
         }
     ]
 }

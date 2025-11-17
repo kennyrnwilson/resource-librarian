@@ -390,61 +390,101 @@ pointers: Dict  # REMOVE - vectorization
 
 ### Phase 3: Book Management (Week 2)
 
-**Goal:** Add and parse books
+**Goal:** Add and parse books with automatic metadata extraction and chapter splitting
+
+**Capabilities:**
+- **Multiple format support:** PDF, EPUB, Markdown
+- **Auto-extract metadata:** Title, author, ISBN from file content
+- **Automatic chapter splitting:** Extract chapters from EPUB structure
+- **Preserve all formats:** Keep originals + generate txt/md versions
+- **Normalized organization:** Store by author/title with consistent naming
 
 **Tasks:**
 1. Add pymupdf, ebooklib, beautifulsoup4 to dependencies
 2. Create `resourcelibrarian/sources/` directory
 3. Port and adapt:
-   - `sources/book_parser.py` - Parse PDF/EPUB/Markdown
-   - `sources/epub_chapter_extractor.py` - Extract chapters
-   - `sources/book_folder_scanner.py` - Detect formats
-   - `sources/book_ingestion.py` - Add books to library
+   - `sources/book_parser.py` - Parse PDF/EPUB/Markdown, extract metadata
+   - `sources/epub_chapter_extractor.py` - Auto-split chapters from EPUB
+   - `sources/book_folder_scanner.py` - Detect available formats
+   - `sources/book_ingestion.py` - Orchestrate ingestion, create manifest
 4. Write tests with sample books (PDF, EPUB, Markdown)
 
-**Deliverable:** Working book ingestion pipeline
+**Deliverable:** Working book ingestion pipeline with metadata extraction
 
 **Technology Deep Dive:**
-- **PyMuPDF:** Why we use it (fast, reliable PDF parsing)
-- **ebooklib:** EPUB parsing, chapter extraction
-- **BeautifulSoup4:** HTML parsing for EPUB content
+- **PyMuPDF:** Fast, reliable PDF parsing and metadata extraction
+- **ebooklib:** EPUB parsing, chapter structure detection
+- **BeautifulSoup4:** HTML parsing for EPUB content and metadata
 
 ---
 
 ### Phase 4: YouTube Integration (Week 2)
 
-**Goal:** Fetch and store YouTube transcripts
+**Goal:** Fetch and store YouTube transcripts with channel organization
+
+**Capabilities:**
+- **YouTube video ingestion:** Single videos or entire channels
+- **Automatic transcript download:** No API key required
+- **Rich metadata capture:** Title, channel, publish date, tags, thumbnails
+- **Channel-based organization:** Group videos by channel
+- **Resumable batch processing:** Process large playlists/channels incrementally
+- **State tracking:** Resume interrupted downloads, avoid duplicates
 
 **Tasks:**
 1. Add google-api-python-client, youtube-transcript-api, yt-dlp
 2. Port and adapt:
-   - `sources/youtube_api.py` - Fetch video metadata
-   - `sources/youtube_transcript.py` - Get transcripts
-   - `sources/video_ingestion.py` - Add videos to library
-3. Write tests with real YouTube videos (public domain)
+   - `sources/youtube_api.py` - Fetch video metadata via YouTube API
+   - `sources/youtube_transcript.py` - Download transcripts (no API key!)
+   - `sources/video_ingestion.py` - Orchestrate ingestion, create manifests
+3. Add state tracking for resumable batch processing
+4. Write tests with real YouTube videos (public domain)
 
-**Deliverable:** YouTube transcript fetching (no API key required!)
+**Deliverable:** YouTube transcript fetching with resumable batch processing
 
 **Technology Deep Dive:**
-- **youtube-transcript-api:** How it works without API keys
-- **yt-dlp:** Metadata extraction
-- **google-api-python-client:** Optional API integration
+- **youtube-transcript-api:** How it works without API keys (scraping fallback)
+- **yt-dlp:** Metadata extraction without downloading video files
+- **google-api-python-client:** YouTube API integration for metadata
+- **Batch processing:** State management for interrupted operations
 
 ---
 
 ### Phase 5: Library Organization (Week 3)
 
-**Goal:** Centralized library management
+**Goal:** Centralized library management with traditional catalog browsing
+
+**Capabilities:**
+- **List all resources** - Browse entire library like a traditional catalog
+- **Filter by metadata** - Author, category, tags for books; channel for videos
+- **View available formats** - See all formats for each resource (PDF, EPUB, Markdown, chapters)
+- **Retrieve content** - Access full books or specific chapters on demand
+- **Access summaries** - List and retrieve existing summaries for any resource
+- **Master indices** - Library-wide navigation files:
+  - `books/_index/authors.md` - All books organized by author
+  - `books/_index/titles.md` - All books organized by title
+  - `videos/_index/channels.md` - All videos organized by channel
+- **Individual resource indices** - Each book/video gets a beautiful `index.md` file
+- **JSON catalog** - Fast searchable catalog at `.knowledgehub/catalog.json`
 
 **Tasks:**
 1. Create `resourcelibrarian/hub.py`
 2. Port and adapt:
-   - `hub.py` - Main KnowledgeHub class
-   - `catalog/catalog_service.py` - Search/browse functionality
-   - `core/indexer.py` - Catalog index generation
-3. Write tests for library operations (add, list, search, delete)
+   - `hub.py` - Main KnowledgeHub class with catalog queries
+   - `catalog/catalog_service.py` - Search/browse/filter functionality
+   - `core/indexer.py` - Generate master and individual index files
+3. Write tests for:
+   - Library operations (add, list, search, delete)
+   - Filtering by author, category, tags
+   - Format queries (list available formats)
+   - Content retrieval (full book, specific chapter)
+   - Index generation (master indices, individual indices)
 
-**Deliverable:** Working KnowledgeHub with catalog
+**Deliverable:** Working KnowledgeHub with full catalog browsing capabilities
+
+**Technology Deep Dive:**
+- **Catalog design:** In-memory catalog built from manifest files
+- **Index generation:** Markdown templates for navigation
+- **Query patterns:** Filter, sort, and retrieve operations
 
 ---
 
@@ -453,10 +493,10 @@ pointers: Dict  # REMOVE - vectorization
 **Goal:** User-friendly command-line interface
 
 **Tasks:**
-1. Add typer, rich to dependencies
-2. Create `resourcelibrarian/cli/` directory
+1. ✅ Add typer, rich to dependencies
+2. ✅ Create `resourcelibrarian/cli/` directory
 3. Port and adapt commands:
-   - `init` - Initialize library
+   - ✅ `init` - Initialize library
    - `status` - Show library stats
    - `add book [path]` - Add book
    - `add book-folder [path]` - Add folder of books
