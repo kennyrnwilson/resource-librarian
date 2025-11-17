@@ -180,6 +180,7 @@ def test_init_command_with_relative_path(tmp_path):
 
     # Change to tmp_path to test relative paths
     import os
+
     original_cwd = os.getcwd()
     try:
         os.chdir(tmp_path)

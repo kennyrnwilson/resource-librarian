@@ -103,7 +103,10 @@ def test_library_init_sets_paths(tmp_path):
     assert library.root == library_path.resolve()
     assert library.metadata_dir == library_path.resolve() / ".metadata"
     assert library.catalog_path == library_path.resolve() / ".metadata" / "catalog.json"
-    assert library.video_state_path == library_path.resolve() / ".metadata" / "video_processing_state.json"
+    assert (
+        library.video_state_path
+        == library_path.resolve() / ".metadata" / "video_processing_state.json"
+    )
     assert library.books_dir == library_path.resolve() / "books"
     assert library.videos_dir == library_path.resolve() / "videos"
 

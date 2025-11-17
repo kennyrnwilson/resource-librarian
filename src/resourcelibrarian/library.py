@@ -86,21 +86,12 @@ class ResourceLibrary:
 
         # Create empty catalog
         catalog_path = metadata_dir / cls.CATALOG_FILE
-        empty_catalog = {
-            "version": "1.0",
-            "books": [],
-            "videos": [],
-            "last_updated": None
-        }
+        empty_catalog = {"version": "1.0", "books": [], "videos": [], "last_updated": None}
         catalog_path.write_text(json.dumps(empty_catalog, indent=2))
 
         # Create empty video processing state
         video_state_path = metadata_dir / cls.VIDEO_STATE_FILE
-        empty_state = {
-            "processed": [],
-            "failed": [],
-            "pending": []
-        }
+        empty_state = {"processed": [], "failed": [], "pending": []}
         video_state_path.write_text(json.dumps(empty_state, indent=2))
 
         # Create books directory structure

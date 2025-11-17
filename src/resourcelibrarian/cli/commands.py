@@ -41,41 +41,46 @@ def init(
 
         # Success message
         console.print()
-        console.print(Panel.fit(
-            f"[green]✓[/green] Resource Library initialized successfully!\n\n"
-            f"[bold]Location:[/bold] {library.root}\n\n"
-            f"[dim]Directory structure created:[/dim]\n"
-            f"  • .metadata/ (catalog and state files)\n"
-            f"  • books/ (book storage and indices)\n"
-            f"  • videos/ (YouTube transcripts and indices)\n\n"
-            f"[bold]Next steps:[/bold]\n"
-            f"  • Add books: [cyan]rl add book <file>[/cyan]\n"
-            f"  • Fetch video transcripts: [cyan]rl fetch video <url>[/cyan]\n"
-            f"  • Build catalog: [cyan]rl catalog build[/cyan]",
-            title="[bold green]Library Initialized[/bold green]",
-            border_style="green",
-        ))
+        console.print(
+            Panel.fit(
+                f"[green]✓[/green] Resource Library initialized successfully!\n\n"
+                f"[bold]Location:[/bold] {library.root}\n\n"
+                f"[dim]Directory structure created:[/dim]\n"
+                f"  • .metadata/ (catalog and state files)\n"
+                f"  • books/ (book storage and indices)\n"
+                f"  • videos/ (YouTube transcripts and indices)\n\n"
+                f"[bold]Next steps:[/bold]\n"
+                f"  • Add books: [cyan]rl add book <file>[/cyan]\n"
+                f"  • Fetch video transcripts: [cyan]rl fetch video <url>[/cyan]\n"
+                f"  • Build catalog: [cyan]rl catalog build[/cyan]",
+                title="[bold green]Library Initialized[/bold green]",
+                border_style="green",
+            )
+        )
         console.print()
 
     except FileExistsError as e:
         console.print()
-        console.print(Panel.fit(
-            f"[red]✗[/red] {str(e)}\n\n"
-            f"[dim]The directory already exists. If you want to initialize a library:\n"
-            f"  • Choose a different location, or\n"
-            f"  • Remove the existing directory first[/dim]",
-            title="[bold red]Initialization Failed[/bold red]",
-            border_style="red",
-        ))
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}\n\n"
+                f"[dim]The directory already exists. If you want to initialize a library:\n"
+                f"  • Choose a different location, or\n"
+                f"  • Remove the existing directory first[/dim]",
+                title="[bold red]Initialization Failed[/bold red]",
+                border_style="red",
+            )
+        )
         console.print()
         raise typer.Exit(1)
     except Exception as e:
         console.print()
-        console.print(Panel.fit(
-            f"[red]✗[/red] An unexpected error occurred:\n\n"
-            f"{str(e)}",
-            title="[bold red]Error[/bold red]",
-            border_style="red",
-        ))
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] An unexpected error occurred:\n\n{str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
         console.print()
         raise typer.Exit(1)
