@@ -1,44 +1,50 @@
 # Resource Librarian
 
-A library to help create, maintain and index a library of digital resources such as electronic books and youtube video transcripts. By organising resources in these forms and in this manner we make the information amenable to processing by modern generative AI systems.
+A Python library for creating, maintaining, and indexing a personal library of digital resources. Organize your books and YouTube video transcripts in a way that's perfect for processing with modern AI systems.
 
-## Features
+## What is Resource Librarian?
 
-### Resource Ingestion - Multiple Content Types
+Resource Librarian helps you build a **filesystem-based knowledge library** from:
+- **Books** (PDF, EPUB, Markdown)
+- **YouTube videos** (transcripts and metadata)
 
-**Books:**
+No database required - everything is organized in plain files with YAML metadata and Markdown indices.
+
+## Key Features
+
+### 📚 Book Management
 - Supports PDF, EPUB, and Markdown formats
 - Auto-extracts metadata (title, author, ISBN)
-- Automatically splits into chapters (from EPUB structure)
+- Automatically splits EPUB into chapters
 - Preserves all original formats
-- Organizes by author and title with normalized naming
+- Organizes by author with normalized naming
 
-**Videos:**
-- YouTube videos and channels
+### 🎥 YouTube Video Management
 - Downloads transcripts automatically
 - Captures video metadata (title, channel, publish date, tags)
 - Organizes by channel
 - Resumable batch processing for large collections
 
-### Library Organization
-
-- **Filesystem-first architecture** - No database required
-- **YAML manifests** - Each resource has structured metadata
+### 🗂️ Library Organization
+- **Filesystem-first** - All content stored as files, no database
+- **YAML manifests** - Structured metadata for each resource
 - **Searchable catalog** - JSON-based catalog for quick lookups
-- **Generated indices** - Markdown index pages by author, title, channel
+- **Generated indices** - Beautiful Markdown index pages
 
-### Library Catalog & Metadata Queries
-
-Browse your library like a traditional catalog:
-
-- **List all books** - Filter by author, category, or tags
-- **View available formats** - PDF, EPUB, Markdown, chapters
-- **Retrieve content** - Full books or specific chapters
-- **Access summaries** - View existing summaries for any resource
-- **Master indices** - Library-wide navigation via `books/_index/authors.md` and `books/_index/titles.md`
-- **Individual book indices** - Each book gets a beautiful `index.md` file for easy navigation 
+### 🔍 Browse Your Library
+- List all books - Filter by author, category, or tags
+- View available formats - PDF, EPUB, Markdown, chapters
+- Retrieve content - Full books or specific chapters
+- Access summaries - View existing summaries for any resource
+- Navigate with indices - Library-wide and per-book navigation
 
 ## Installation
+
+### Prerequisites
+- Python 3.11 or higher
+- Git
+
+### Install from Source
 
 ```bash
 # Clone the repository
@@ -47,91 +53,144 @@ cd resource-librarian
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: .\venv\Scripts\Activate.ps1
 
-# Install package with dev dependencies
+# Install the package
 pip install -e ".[dev]"
 ```
 
-## Development
+## Quick Start
 
-### Running Tests
+### 1. Initialize a Library
 
-Run all tests:
-
-```bash
-pytest tests/ -v
-```
-
-Run tests with coverage report:
+Create a new resource library:
 
 ```bash
-pytest tests/ --cov=src/resourcelibrarian --cov-report=term-missing
-```
-
-This will show:
-- Overall coverage percentage
-- Line-by-line coverage for each module
-- Missing lines that aren't covered by tests
-
-### Writing Tests
-
-**Unit Tests:** Test individual classes and functions in isolation
-- Example: `tests/test_library.py` tests the `ResourceLibrary` class
-
-**CLI Integration Tests:** Test CLI commands using Typer's testing utilities
-- Example: `tests/test_cli_init.py` tests the `rl init` command
-- Uses `typer.testing.CliRunner` to invoke commands without subprocess calls
-- Documentation: https://typer.tiangolo.com/tutorial/testing/
-
-### Code Quality
-
-This project uses [Ruff](https://github.com/astral-sh/ruff) for linting and formatting:
-
-```bash
-# Lint code
-ruff check .
-
-# Format code
-ruff format .
-```
-
-## Usage
-
-### Initialize a New Library
-
-Create a new resource library in a directory:
-
-```bash
-# Initialize a new library
 rl init /path/to/my-library
 ```
 
-This creates the following directory structure:
-
+This creates:
 ```
 my-library/
 ├── .metadata/
 │   ├── catalog.json                # Searchable catalog
-│   └── video_processing_state.json # Video processing state tracker
+│   └── video_processing_state.json # Video processing tracker
 ├── books/
 │   └── _index/
-│       ├── authors.md              # Index of all books by author
-│       └── titles.md               # Index of all books by title
+│       ├── authors.md              # Books by author
+│       └── titles.md               # Books by title
 └── videos/
     └── _index/
-        └── channels.md             # Index of all videos by channel
+        └── channels.md             # Videos by channel
 ```
 
-### Command-Line Reference
-
-See available commands:
+### 2. Add Books
 
 ```bash
-rl --help
+# Add a single book (auto-detects metadata)
+rl book add /path/to/book.epub
+
+# Add a book with manual metadata
+rl book add /path/to/book.pdf --title "The Manager's Path" --author "Camille Fournier"
+
+# Add from a folder (with summaries and multiple formats)
+rl book add-folder /path/to/book-folder
 ```
 
-**Note:** More commands will be available as development continues. See [docs/CLI_COMMANDS_ANALYSIS.md](docs/CLI_COMMANDS_ANALYSIS.md) for the full command roadmap.
+### 3. Add YouTube Videos
+
+```bash
+# Add a single video
+rl video add https://www.youtube.com/watch?v=VIDEO_ID
+
+# Add an entire channel
+rl video add-channel https://www.youtube.com/channel/CHANNEL_ID
+
+# Batch add from URLs file
+rl video batch /path/to/urls.txt
+```
+
+### 4. Browse Your Library
+
+```bash
+# List all books
+rl book list
+
+# List books by specific author
+rl book list --author "Camille Fournier"
+
+# List videos
+rl video list
+
+# List videos from specific channel
+rl video list --channel "Tech Channel"
+```
+
+### 5. Access Content
+
+```bash
+# Get book content
+rl book get "The Manager's Path"
+
+# Get specific chapter
+rl book get "The Manager's Path" --chapter 3
+
+# Get video transcript
+rl video get VIDEO_ID
+```
+
+## Library Structure
+
+Your library is organized like this:
+
+```
+my-library/
+├── books/
+│   ├── _index/                    # Library-wide indices
+│   │   ├── authors.md
+│   │   └── titles.md
+│   └── fournier-camille/          # Books by author
+│       └── the-managers-path/
+│           ├── manifest.yaml      # Book metadata
+│           ├── index.md           # Book navigation
+│           ├── the-managers-path.epub
+│           ├── the-managers-path.pdf
+│           ├── the-managers-path.md
+│           ├── chapters/
+│           │   ├── 1-introduction.md
+│           │   └── 2-mentoring.md
+│           └── summaries/
+│               └── shortform-summary.md
+│
+└── videos/
+    ├── _index/
+    │   └── channels.md
+    └── tech-channel/
+        ├── video-title-1/
+        │   ├── manifest.yaml
+        │   └── transcript.md
+        └── video-title-2/
+            ├── manifest.yaml
+            └── transcript.md
+```
+
+## Command Reference
+
+Get help on any command:
+
+```bash
+rl --help           # All commands
+rl book --help      # Book commands
+rl video --help     # Video commands
+```
+
+**Note:** Some commands are still in development. See [docs/CLI_COMMANDS_ANALYSIS.md](docs/CLI_COMMANDS_ANALYSIS.md) for the full roadmap.
+
+## Developer Resources
+
+- [Development Guide](docs/DEVELOPMENT.md) - Setup, testing, and contributing
+- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) - Project roadmap and phases
+- [CLI Commands Analysis](docs/CLI_COMMANDS_ANALYSIS.md) - Complete command reference
 
 ## License
 
