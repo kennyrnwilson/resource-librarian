@@ -3,8 +3,6 @@
 from datetime import datetime
 from pathlib import Path
 
-import pytest
-
 from resourcelibrarian.models import (
     Book,
     BookManifest,
@@ -47,9 +45,7 @@ def test_source_kind_enum_iteration():
 
 def test_book_manifest_creation_minimal():
     """Test creating BookManifest with minimal required fields."""
-    manifest = BookManifest(
-        title="Test Book", author="Test Author", source_folder="test-book"
-    )
+    manifest = BookManifest(title="Test Book", author="Test Author", source_folder="test-book")
 
     assert manifest.title == "Test Book"
     assert manifest.author == "Test Author"
@@ -117,9 +113,7 @@ def test_book_manifest_to_yaml_dict():
 
 def test_book_creation():
     """Test creating Book with manifest and folder path."""
-    manifest = BookManifest(
-        title="My Book", author="Author Name", source_folder="my-book"
-    )
+    manifest = BookManifest(title="My Book", author="Author Name", source_folder="my-book")
     book = Book(folder_path=Path("/library/books/my-book"), manifest=manifest)
 
     assert book.folder_path == Path("/library/books/my-book")
@@ -128,9 +122,7 @@ def test_book_creation():
 
 def test_book_title_property():
     """Test Book title property."""
-    manifest = BookManifest(
-        title="Property Test", author="Test Author", source_folder="prop-test"
-    )
+    manifest = BookManifest(title="Property Test", author="Test Author", source_folder="prop-test")
     book = Book(folder_path=Path("/test"), manifest=manifest)
 
     assert book.title == "Property Test"
@@ -138,9 +130,7 @@ def test_book_title_property():
 
 def test_book_author_property():
     """Test Book author property."""
-    manifest = BookManifest(
-        title="Test", author="Famous Author", source_folder="test"
-    )
+    manifest = BookManifest(title="Test", author="Famous Author", source_folder="test")
     book = Book(folder_path=Path("/test"), manifest=manifest)
 
     assert book.author == "Famous Author"
@@ -171,9 +161,7 @@ def test_book_tags_property():
 
 def test_book_source_folder_property():
     """Test Book source_folder property."""
-    manifest = BookManifest(
-        title="Test", author="Test", source_folder="original-folder"
-    )
+    manifest = BookManifest(title="Test", author="Test", source_folder="original-folder")
     book = Book(folder_path=Path("/test"), manifest=manifest)
 
     assert book.source_folder == "original-folder"
@@ -364,9 +352,7 @@ def test_video_creation():
     manifest = VideoManifest(
         videoId="vid123", title="My Video", channelId="ch1", channelTitle="My Channel"
     )
-    video = Video(
-        folder_path=Path("/library/videos/my-channel/my-video"), manifest=manifest
-    )
+    video = Video(folder_path=Path("/library/videos/my-channel/my-video"), manifest=manifest)
 
     assert video.folder_path == Path("/library/videos/my-channel/my-video")
     assert video.manifest == manifest
@@ -461,9 +447,7 @@ def test_video_get_transcript_path():
 
 def test_video_get_transcript_path_missing():
     """Test Video.get_transcript_path returns None when not available."""
-    manifest = VideoManifest(
-        videoId="vid1", title="Test", channelId="ch1", channelTitle="Test Ch"
-    )
+    manifest = VideoManifest(videoId="vid1", title="Test", channelId="ch1", channelTitle="Test Ch")
     video = Video(folder_path=Path("/test"), manifest=manifest)
 
     transcript_path = video.get_transcript_path()
@@ -487,9 +471,7 @@ def test_video_get_url_path():
 
 def test_video_get_url_path_missing():
     """Test Video.get_url_path returns None when not available."""
-    manifest = VideoManifest(
-        videoId="vid1", title="Test", channelId="ch1", channelTitle="Test Ch"
-    )
+    manifest = VideoManifest(videoId="vid1", title="Test", channelId="ch1", channelTitle="Test Ch")
     video = Video(folder_path=Path("/test"), manifest=manifest)
 
     url_path = video.get_url_path()
@@ -549,9 +531,7 @@ def test_library_catalog_creation_empty():
 
 def test_library_catalog_creation_with_data():
     """Test creating LibraryCatalog with books and videos."""
-    book_manifest = BookManifest(
-        title="Test Book", author="Author", source_folder="test-book"
-    )
+    book_manifest = BookManifest(title="Test Book", author="Author", source_folder="test-book")
     book = Book(folder_path=Path("/library/books/test"), manifest=book_manifest)
 
     video_manifest = VideoManifest(
@@ -574,14 +554,10 @@ def test_library_catalog_creation_with_data():
 
 def test_catalog_to_dict():
     """Test LibraryCatalog.to_dict method."""
-    book_manifest = BookManifest(
-        title="Dict Book", author="Author", source_folder="dict-book"
-    )
+    book_manifest = BookManifest(title="Dict Book", author="Author", source_folder="dict-book")
     book = Book(folder_path=Path("/library/books/dict"), manifest=book_manifest)
 
-    catalog = LibraryCatalog(
-        books=[book], library_path=Path("/library"), last_updated="2024-01-01"
-    )
+    catalog = LibraryCatalog(books=[book], library_path=Path("/library"), last_updated="2024-01-01")
 
     data = catalog.to_dict()
 
@@ -604,15 +580,11 @@ def test_catalog_find_book():
     """Test LibraryCatalog.find_book method."""
     book1 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="First Book", author="Author 1", source_folder="first"
-        ),
+        manifest=BookManifest(title="First Book", author="Author 1", source_folder="first"),
     )
     book2 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="Second Book", author="Author 2", source_folder="second"
-        ),
+        manifest=BookManifest(title="Second Book", author="Author 2", source_folder="second"),
     )
 
     catalog = LibraryCatalog(books=[book1, book2])
@@ -707,9 +679,7 @@ def test_catalog_search_books_by_category():
     )
     book2 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="Book 2", author="A", source_folder="b2", categories=["web"]
-        ),
+        manifest=BookManifest(title="Book 2", author="A", source_folder="b2", categories=["web"]),
     )
 
     catalog = LibraryCatalog(books=[book1, book2])
@@ -729,9 +699,7 @@ def test_catalog_search_books_by_tag():
     )
     book2 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="Book 2", author="A", source_folder="b2", tags=["javascript"]
-        ),
+        manifest=BookManifest(title="Book 2", author="A", source_folder="b2", tags=["javascript"]),
     )
 
     catalog = LibraryCatalog(books=[book1, book2])
@@ -745,15 +713,11 @@ def test_catalog_search_books_by_title():
     """Test LibraryCatalog.search_books by title."""
     book1 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="Python Programming", author="A", source_folder="b1"
-        ),
+        manifest=BookManifest(title="Python Programming", author="A", source_folder="b1"),
     )
     book2 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="JavaScript Guide", author="A", source_folder="b2"
-        ),
+        manifest=BookManifest(title="JavaScript Guide", author="A", source_folder="b2"),
     )
 
     catalog = LibraryCatalog(books=[book1, book2])
@@ -949,9 +913,7 @@ def test_catalog_get_all_categories():
     """Test LibraryCatalog.get_all_categories method."""
     book1 = Book(
         folder_path=Path("/test"),
-        manifest=BookManifest(
-            title="B1", author="A", source_folder="b1", categories=["ai", "ml"]
-        ),
+        manifest=BookManifest(title="B1", author="A", source_folder="b1", categories=["ai", "ml"]),
     )
     video1 = Video(
         folder_path=Path("/test"),
@@ -1031,9 +993,7 @@ def test_catalog_get_stats():
         ),
     )
 
-    catalog = LibraryCatalog(
-        books=[book1, book2], videos=[video1], last_updated="2024-01-01"
-    )
+    catalog = LibraryCatalog(books=[book1, book2], videos=[video1], last_updated="2024-01-01")
 
     stats = catalog.get_stats()
 

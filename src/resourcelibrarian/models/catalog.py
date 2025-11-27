@@ -152,10 +152,7 @@ class LibraryCatalog(BaseModel):
 
             # Check category filter
             if category:
-                if not any(
-                    category.lower() in cat.lower()
-                    for cat in video.manifest.categories
-                ):
+                if not any(category.lower() in cat.lower() for cat in video.manifest.categories):
                     continue
 
             # Check tag filter
