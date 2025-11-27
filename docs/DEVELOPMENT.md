@@ -1,5 +1,7 @@
 # Development Guide
 
+> **[← Back to Main README](../README.md)** | **[Implementation Plan](IMPLEMENTATION_PLAN.md)** | **[CLI Commands](CLI_COMMANDS_ANALYSIS.md)**
+
 This guide covers everything you need to know to contribute to Resource Librarian.
 
 ## Table of Contents

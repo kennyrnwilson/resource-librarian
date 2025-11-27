@@ -1,5 +1,7 @@
 # Resource Librarian Implementation Plan
 
+> **[← Back to Main README](../README.md)** | **[Development Guide](DEVELOPMENT.md)** | **[CLI Commands](CLI_COMMANDS_ANALYSIS.md)**
+
 **Created:** 2025-11-16
 **Status:** Planning Phase
 **Source:** Porting from /home/kenne/resource-library-tools

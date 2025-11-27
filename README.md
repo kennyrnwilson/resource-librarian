@@ -186,11 +186,18 @@ rl video --help     # Video commands
 
 **Note:** Some commands are still in development. See [docs/CLI_COMMANDS_ANALYSIS.md](docs/CLI_COMMANDS_ANALYSIS.md) for the full roadmap.
 
-## Developer Resources
+## Documentation
 
-- [Development Guide](docs/DEVELOPMENT.md) - Setup, testing, and contributing
-- [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) - Project roadmap and phases
-- [CLI Commands Analysis](docs/CLI_COMMANDS_ANALYSIS.md) - Complete command reference
+### For Users
+- **[Installation & Quick Start](#installation)** - Get started quickly
+- **[Command Reference](#command-reference)** - Available CLI commands
+- **[Library Structure](#library-structure)** - How your library is organized
+
+### For Developers
+- **[Development Guide](docs/DEVELOPMENT.md)** - Setup, testing, and contributing
+- **[Implementation Plan](docs/IMPLEMENTATION_PLAN.md)** - Project roadmap and phases
+- **[CLI Commands Analysis](docs/CLI_COMMANDS_ANALYSIS.md)** - Complete command specifications
+- **[Session Recovery Guide](docs/SESSION_RECOVERY.md)** - Development session continuity
 
 ## License
 

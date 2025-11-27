@@ -1,5 +1,7 @@
 # Session Recovery Guide
 
+> **[← Back to Main README](../README.md)** | **[Development Guide](DEVELOPMENT.md)** | **[Implementation Plan](IMPLEMENTATION_PLAN.md)**
+
 **Date:** 2025-11-16 21:30
 **Project:** resource-librarian
 **Status:** Architecture defined, ready for Phase 1 implementation

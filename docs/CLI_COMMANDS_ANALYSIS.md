@@ -1,5 +1,7 @@
 # CLI Commands Analysis - Source Project
 
+> **[← Back to Main README](../README.md)** | **[Development Guide](DEVELOPMENT.md)** | **[Implementation Plan](IMPLEMENTATION_PLAN.md)**
+
 **Source:** `/home/kenne/resource-library-tools/src/knowledgehub/cli/commands.py`
 **Date:** 2025-11-17
 **Purpose:** Identify which commands to port vs exclude for Resource Librarian
