@@ -246,6 +246,54 @@ resource-librarian/
 - YAML/JSON reading and writing
 - Hash computation
 
+### Book Ingestion Pipeline
+
+Understanding how books are processed helps when debugging or adding features:
+
+```mermaid
+flowchart TD
+    Start([Book File/Folder]) --> Detect[Detect Format<br/>PDF/EPUB/Markdown]
+    Detect --> Parse[Parse Content<br/>Extract Text]
+    Parse --> Extract[Extract Metadata<br/>Title, Author, ISBN]
+
+    Extract --> Validate{Metadata Valid?}
+    Validate -->|No Title/Author| Error[Raise ValueError]
+    Validate -->|Valid| CreateFolder[Create Folder Structure<br/>author-name/book-title/]
+
+    CreateFolder --> CopyFiles[Copy Source Files<br/>PDF, EPUB to folder]
+    CopyFiles --> GenMarkdown[Generate Markdown<br/>from extracted text]
+    GenMarkdown --> ExtractChapters{Is EPUB?}
+
+    ExtractChapters -->|Yes| Chapters[Extract Chapters<br/>to chapters/ folder]
+    ExtractChapters -->|No| ProcessSummaries{Has Summaries?}
+    Chapters --> ProcessSummaries
+
+    ProcessSummaries -->|Yes| Summaries[Convert Summaries<br/>to summaries/ folder]
+    ProcessSummaries -->|No| CreateManifest[Create manifest.yaml<br/>with metadata & formats]
+    Summaries --> CreateManifest
+
+    CreateManifest --> SaveManifest[Save manifest<br/>to book folder]
+    SaveManifest --> UpdateCatalog[Update Library Catalog<br/>catalog.json]
+    UpdateCatalog --> End([Return Book Object])
+
+    style Start fill:#e1f5ff
+    style End fill:#d4f1d4
+    style Error fill:#ffd4d4
+    style CreateFolder fill:#fff4e1
+    style CreateManifest fill:#ffe1f5
+```
+
+**Pipeline Steps:**
+
+1. **Format Detection** - Identify PDF, EPUB, or Markdown
+2. **Content Parsing** - Extract text using format-specific parsers
+3. **Metadata Extraction** - Get title, author, ISBN from EPUB metadata or text patterns
+4. **Validation** - Ensure required fields (title, author) are present
+5. **Organization** - Create `lastname-firstname/book-title/` folder structure
+6. **File Management** - Copy originals, generate markdown, extract chapters
+7. **Manifest Creation** - Generate `manifest.yaml` with all metadata
+8. **Catalog Update** - Add to library's searchable catalog
+
 ## Writing Tests
 
 ### Test Structure

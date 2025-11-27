@@ -38,6 +38,38 @@ No database required - everything is organized in plain files with YAML metadata
 - Access summaries - View existing summaries for any resource
 - Navigate with indices - Library-wide and per-book navigation
 
+## How It Works
+
+Resource Librarian follows a simple workflow:
+
+```mermaid
+flowchart LR
+    Start([User]) --> Init[rl init<br/>Create Library]
+    Init --> Add{Add Resources}
+
+    Add -->|Books| AddBook[rl book add]
+    Add -->|Videos| AddVideo[rl video add]
+
+    AddBook --> BookParse[Parse & Extract<br/>Metadata]
+    BookParse --> BookStore[Organize in<br/>Library]
+
+    AddVideo --> VideoFetch[Fetch Transcript<br/>& Metadata]
+    VideoFetch --> VideoStore[Organize in<br/>Library]
+
+    BookStore --> Browse{Browse & Use}
+    VideoStore --> Browse
+
+    Browse -->|List| List[rl book/video list]
+    Browse -->|Get Content| Get[rl book/video get]
+    Browse -->|View Index| Index[Read index.md files]
+```
+
+**Key Steps:**
+1. **Initialize** - Create library structure with `rl init`
+2. **Add Resources** - Import books (PDF/EPUB) or YouTube videos
+3. **Auto-Organization** - Files are parsed, organized by author/channel, with metadata extracted
+4. **Browse & Access** - List, search, and retrieve content via CLI or filesystem
+
 ## Installation
 
 ### Prerequisites
@@ -141,35 +173,83 @@ rl video get VIDEO_ID
 
 ## Library Structure
 
-Your library is organized like this:
+Your library is organized in a clear filesystem hierarchy:
+
+```mermaid
+graph TB
+    Library[📁 my-library/]
+
+    Library --> Metadata[📁 .metadata/]
+    Library --> Books[📁 books/]
+    Library --> Videos[📁 videos/]
+
+    Metadata --> Catalog[📄 catalog.json]
+    Metadata --> VideoState[📄 video_processing_state.json]
+
+    Books --> BooksIndex[📁 _index/]
+    Books --> Author[📁 fournier-camille/]
+
+    BooksIndex --> AuthorsMd[📄 authors.md]
+    BooksIndex --> TitlesMd[📄 titles.md]
+
+    Author --> BookFolder[📁 the-managers-path/]
+
+    BookFolder --> Manifest[📄 manifest.yaml]
+    BookFolder --> IndexMd[📄 index.md]
+    BookFolder --> Epub[📄 book.epub]
+    BookFolder --> Pdf[📄 book.pdf]
+    BookFolder --> Md[📄 book.md]
+    BookFolder --> Chapters[📁 chapters/]
+    BookFolder --> Summaries[📁 summaries/]
+
+    Chapters --> Ch1[📄 1-introduction.md]
+    Chapters --> Ch2[📄 2-mentoring.md]
+
+    Summaries --> Summary[📄 shortform-summary.md]
+
+    Videos --> VideosIndex[📁 _index/]
+    Videos --> Channel[📁 tech-channel/]
+
+    VideosIndex --> ChannelsMd[📄 channels.md]
+
+    Channel --> Video1[📁 video-title-1/]
+    Channel --> Video2[📁 video-title-2/]
+
+    Video1 --> V1Manifest[📄 manifest.yaml]
+    Video1 --> V1Transcript[📄 transcript.md]
+
+    Video2 --> V2Manifest[📄 manifest.yaml]
+    Video2 --> V2Transcript[📄 transcript.md]
+
+    style Library fill:#e1f5ff
+    style Books fill:#fff4e1
+    style Videos fill:#ffe1f5
+    style Metadata fill:#f0f0f0
+```
+
+**Structure Overview:**
 
 ```
 my-library/
+├── .metadata/                     # Internal library data
+│   ├── catalog.json              # Searchable catalog
+│   └── video_processing_state.json
 ├── books/
-│   ├── _index/                    # Library-wide indices
+│   ├── _index/                   # Library-wide indices
 │   │   ├── authors.md
 │   │   └── titles.md
-│   └── fournier-camille/          # Books by author
+│   └── fournier-camille/         # Books organized by author
 │       └── the-managers-path/
-│           ├── manifest.yaml      # Book metadata
-│           ├── index.md           # Book navigation
-│           ├── the-managers-path.epub
-│           ├── the-managers-path.pdf
-│           ├── the-managers-path.md
-│           ├── chapters/
-│           │   ├── 1-introduction.md
-│           │   └── 2-mentoring.md
-│           └── summaries/
-│               └── shortform-summary.md
-│
+│           ├── manifest.yaml     # Book metadata
+│           ├── index.md          # Book navigation
+│           ├── *.epub, *.pdf, *.md  # Multiple formats
+│           ├── chapters/         # Individual chapters
+│           └── summaries/        # Book summaries
 └── videos/
     ├── _index/
     │   └── channels.md
-    └── tech-channel/
-        ├── video-title-1/
-        │   ├── manifest.yaml
-        │   └── transcript.md
-        └── video-title-2/
+    └── tech-channel/             # Videos organized by channel
+        └── video-title/
             ├── manifest.yaml
             └── transcript.md
 ```
