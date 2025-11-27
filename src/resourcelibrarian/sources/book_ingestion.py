@@ -34,9 +34,9 @@ def parse_author_name(author: str) -> tuple[str, str]:
     """Parse author name into first and last name.
 
     Handles various formats:
-    - "Camille Fournier" -> ("Camille", "Fournier")
-    - "Fournier, Camille" -> ("Camille", "Fournier")
-    - "John Smith Jr." -> ("John", "Smith Jr.")
+    - "John Smith" -> ("John", "Smith")
+    - "Smith, John" -> ("John", "Smith")
+    - "Jane Doe Jr." -> ("Jane", "Doe Jr.")
     - "Single" -> ("", "Single")
 
     Args:
@@ -76,7 +76,7 @@ def create_book_folder_path(title: str, author: str) -> str:
 
     Returns:
         Folder path in format: lastname-firstname/book-title
-        Example: "fournier-camille/the-managers-path"
+        Example: "smith-john/python-programming"
     """
     title_slug = slugify(title)
 

@@ -455,9 +455,9 @@ def parse_author_name(author: str) -> tuple[str, str]:
     """Parse author name into first and last name.
 
     Handles various formats:
-    - "Camille Fournier" -> ("Camille", "Fournier")
-    - "Fournier, Camille" -> ("Camille", "Fournier")
-    - "John Smith Jr." -> ("John", "Smith Jr.")
+    - "John Smith" -> ("John", "Smith")
+    - "Smith, John" -> ("John", "Smith")
+    - "Jane Doe Jr." -> ("Jane", "Doe Jr.")
 
     Args:
         author: Author name in any common format

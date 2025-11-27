@@ -123,7 +123,7 @@ my-library/
 rl book add /path/to/book.epub
 
 # Add a book with manual metadata
-rl book add /path/to/book.pdf --title "The Manager's Path" --author "Camille Fournier"
+rl book add /path/to/book.pdf --title "Python Programming" --author "John Smith"
 
 # Add from a folder (with summaries and multiple formats)
 rl book add-folder /path/to/book-folder
@@ -149,7 +149,7 @@ rl video batch /path/to/urls.txt
 rl book list
 
 # List books by specific author
-rl book list --author "Camille Fournier"
+rl book list --author "John Smith"
 
 # List videos
 rl video list
@@ -162,10 +162,10 @@ rl video list --channel "Tech Channel"
 
 ```bash
 # Get book content
-rl book get "The Manager's Path"
+rl book get "Python Programming"
 
 # Get specific chapter
-rl book get "The Manager's Path" --chapter 3
+rl book get "Python Programming" --chapter 3
 
 # Get video transcript
 rl video get VIDEO_ID
@@ -187,12 +187,12 @@ graph TB
     Metadata --> VideoState[📄 video_processing_state.json]
 
     Books --> BooksIndex[📁 _index/]
-    Books --> Author[📁 fournier-camille/]
+    Books --> Author[📁 smith-john/]
 
     BooksIndex --> AuthorsMd[📄 authors.md]
     BooksIndex --> TitlesMd[📄 titles.md]
 
-    Author --> BookFolder[📁 the-managers-path/]
+    Author --> BookFolder[📁 python-programming/]
 
     BookFolder --> Manifest[📄 manifest.yaml]
     BookFolder --> IndexMd[📄 index.md]
@@ -238,8 +238,8 @@ my-library/
 │   ├── _index/                   # Library-wide indices
 │   │   ├── authors.md
 │   │   └── titles.md
-│   └── fournier-camille/         # Books organized by author
-│       └── the-managers-path/
+│   └── smith-john/               # Books organized by author
+│       └── python-programming/
 │           ├── manifest.yaml     # Book metadata
 │           ├── index.md          # Book navigation
 │           ├── *.epub, *.pdf, *.md  # Multiple formats
