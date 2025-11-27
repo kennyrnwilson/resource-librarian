@@ -1,7 +1,7 @@
 """Tests for ResourceLibrary class."""
 
 import pytest
-import json
+import yaml
 from resourcelibrarian.library import ResourceLibrary
 
 
@@ -16,7 +16,7 @@ def test_initialize_creates_structure(tmp_path):
     assert library.root == library_path
 
     # Check directory structure
-    assert (library_path / ".metadata").exists()
+    assert (library_path / "_index").exists()  # Library-wide index
     assert (library_path / "books").exists()
     assert (library_path / "books" / "_index").exists()
     assert (library_path / "videos").exists()
@@ -24,34 +24,19 @@ def test_initialize_creates_structure(tmp_path):
 
 
 def test_initialize_creates_catalog_file(tmp_path):
-    """Test that initialize creates catalog.json with correct structure."""
+    """Test that initialize creates catalog.yaml with correct structure."""
     library_path = tmp_path / "test-library"
 
     ResourceLibrary.initialize(library_path)
 
-    catalog_file = library_path / ".metadata" / "catalog.json"
+    catalog_file = library_path / "catalog.yaml"
     assert catalog_file.exists()
 
-    catalog_data = json.loads(catalog_file.read_text())
+    catalog_data = yaml.safe_load(catalog_file.read_text())
     assert catalog_data["version"] == "1.0"
     assert catalog_data["books"] == []
     assert catalog_data["videos"] == []
-    assert catalog_data["last_updated"] is None
-
-
-def test_initialize_creates_video_state_file(tmp_path):
-    """Test that initialize creates video_processing_state.json."""
-    library_path = tmp_path / "test-library"
-
-    ResourceLibrary.initialize(library_path)
-
-    state_file = library_path / ".metadata" / "video_processing_state.json"
-    assert state_file.exists()
-
-    state_data = json.loads(state_file.read_text())
-    assert state_data["processed"] == []
-    assert state_data["failed"] == []
-    assert state_data["pending"] == []
+    assert "last_updated" in catalog_data
 
 
 def test_initialize_creates_index_files(tmp_path):
@@ -59,6 +44,9 @@ def test_initialize_creates_index_files(tmp_path):
     library_path = tmp_path / "test-library"
 
     ResourceLibrary.initialize(library_path)
+
+    # Library-wide index
+    assert (library_path / "_index" / "README.md").exists()
 
     # Books indices
     assert (library_path / "books" / "_index" / "authors.md").exists()
@@ -101,14 +89,10 @@ def test_library_init_sets_paths(tmp_path):
     library = ResourceLibrary(library_path)
 
     assert library.root == library_path.resolve()
-    assert library.metadata_dir == library_path.resolve() / ".metadata"
-    assert library.catalog_path == library_path.resolve() / ".metadata" / "catalog.json"
-    assert (
-        library.video_state_path
-        == library_path.resolve() / ".metadata" / "video_processing_state.json"
-    )
+    assert library.catalog_path == library_path.resolve() / "catalog.yaml"
     assert library.books_dir == library_path.resolve() / "books"
     assert library.videos_dir == library_path.resolve() / "videos"
+    assert library.index_dir == library_path.resolve() / "_index"
 
 
 def test_library_str_representation(tmp_path):

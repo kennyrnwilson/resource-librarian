@@ -28,8 +28,8 @@ No database required - everything is organized in plain files with YAML metadata
 ### 🗂️ Library Organization
 - **Filesystem-first** - All content stored as files, no database
 - **YAML manifests** - Structured metadata for each resource
-- **Searchable catalog** - JSON-based catalog for quick lookups
-- **Generated indices** - Beautiful Markdown index pages
+- **Searchable catalog** - YAML-based catalog for quick lookups
+- **Generated indices** - Beautiful Markdown index pages for navigation
 
 ### 🔍 Browse Your Library
 - List all books - Filter by author, category, or tags
@@ -104,16 +104,16 @@ rl init /path/to/my-library
 This creates:
 ```
 my-library/
-├── .metadata/
-│   ├── catalog.json                # Searchable catalog
-│   └── video_processing_state.json # Video processing tracker
+├── catalog.yaml                    # Library catalog (YAML format)
+├── _index/                         # Library-wide indices
+│   └── README.md                   # Main library index
 ├── books/
-│   └── _index/
-│       ├── authors.md              # Books by author
-│       └── titles.md               # Books by title
+│   └── _index/                     # Book indices
+│       ├── authors.md              # Books grouped by author
+│       └── titles.md               # Books alphabetically
 └── videos/
-    └── _index/
-        └── channels.md             # Videos by channel
+    └── _index/                     # Video indices
+        └── channels.md             # Videos grouped by channel
 ```
 
 ### 2. Add Books
@@ -122,24 +122,34 @@ my-library/
 # Add a single book (auto-detects metadata)
 rl book add /path/to/book.epub
 
-# Add a book with manual metadata
-rl book add /path/to/book.pdf --title "Python Programming" --author "John Smith"
-
-# Add from a folder (with summaries and multiple formats)
-rl book add-folder /path/to/book-folder
+# Add a book with manual metadata and tags
+rl book add /path/to/book.pdf \
+  --author "John Smith" \
+  --categories "Programming,Python" \
+  --tags "beginner,tutorial"
 ```
 
 ### 3. Add YouTube Videos
 
+**Note:** You need a YouTube Data API key. Get one from https://console.cloud.google.com/ and set:
+
 ```bash
-# Add a single video
-rl video add https://www.youtube.com/watch?v=VIDEO_ID
+export YOUTUBE_API_KEY="your-api-key-here"
+```
 
-# Add an entire channel
-rl video add-channel https://www.youtube.com/channel/CHANNEL_ID
+Then fetch videos:
 
-# Batch add from URLs file
-rl video batch /path/to/urls.txt
+```bash
+# Fetch a single video by URL
+rl video fetch https://www.youtube.com/watch?v=VIDEO_ID
+
+# Fetch by video ID
+rl video fetch VIDEO_ID
+
+# Fetch with categories and tags
+rl video fetch "https://youtu.be/VIDEO_ID" \
+  --categories "Education,Programming" \
+  --tags "tutorial,python"
 ```
 
 ### 4. Browse Your Library
@@ -148,28 +158,46 @@ rl video batch /path/to/urls.txt
 # List all books
 rl book list
 
-# List books by specific author
+# List books with filters
 rl book list --author "John Smith"
+rl book list --category "Programming"
+rl book list --tag "python"
 
-# List videos
+# List all videos
 rl video list
 
-# List videos from specific channel
+# List videos with filters
 rl video list --channel "Tech Channel"
+rl video list --category "Education"
+rl video list --tag "tutorial"
 ```
 
 ### 5. Access Content
 
 ```bash
-# Get book content
+# Get book content (displays or saves to file)
 rl book get "Python Programming"
+rl book get "Python Programming" --output /path/to/output.md
 
-# Get specific chapter
-rl book get "Python Programming" --chapter 3
-
-# Get video transcript
-rl video get VIDEO_ID
+# Get video transcript (displays or saves to file)
+rl video get "Video Title"
+rl video get "Video Title" --output /path/to/transcript.txt
 ```
+
+### 6. Manage the Catalog
+
+```bash
+# Rebuild catalog from filesystem (if it gets out of sync)
+rl catalog rebuild
+
+# View library statistics
+rl catalog stats
+```
+
+The catalog is automatically updated when you add books or fetch videos. The `rebuild` command scans your library directory and regenerates the catalog from scratch, which is useful if:
+- You manually moved files around
+- The catalog file was deleted or corrupted
+- You want to ensure catalog is in perfect sync with the filesystem
 
 ## Library Structure
 
@@ -179,12 +207,12 @@ Your library is organized in a clear filesystem hierarchy:
 graph TB
     Library[📁 my-library/]
 
-    Library --> Metadata[📁 .metadata/]
+    Library --> CatalogFile[📄 catalog.yaml]
+    Library --> LibIndex[📁 _index/]
     Library --> Books[📁 books/]
     Library --> Videos[📁 videos/]
 
-    Metadata --> Catalog[📄 catalog.json]
-    Metadata --> VideoState[📄 video_processing_state.json]
+    LibIndex --> LibReadme[📄 README.md]
 
     Books --> BooksIndex[📁 _index/]
     Books --> Author[📁 smith-john/]
@@ -231,9 +259,9 @@ graph TB
 
 ```
 my-library/
-├── .metadata/                     # Internal library data
-│   ├── catalog.json              # Searchable catalog
-│   └── video_processing_state.json
+├── catalog.yaml                   # Searchable library catalog
+├── _index/                        # Library-wide navigation
+│   └── README.md                  # Main index with stats
 ├── books/
 │   ├── _index/                   # Library-wide indices
 │   │   ├── authors.md
@@ -262,7 +290,27 @@ Get help on any command:
 rl --help           # All commands
 rl book --help      # Book commands
 rl video --help     # Video commands
+rl catalog --help   # Catalog commands
 ```
+
+### Available Commands
+
+**Library Management:**
+- `rl init <path>` - Initialize a new library
+
+**Book Commands:**
+- `rl book add <file>` - Add a book to the library
+- `rl book list` - List all books (with filters)
+- `rl book get <title>` - Retrieve book content
+
+**Video Commands:**
+- `rl video fetch <url>` - Fetch a YouTube video transcript
+- `rl video list` - List all videos (with filters)
+- `rl video get <title>` - Retrieve video transcript
+
+**Catalog Commands:**
+- `rl catalog rebuild` - Rebuild catalog from filesystem
+- `rl catalog stats` - Show library statistics
 
 **Note:** Some commands are still in development. See [docs/CLI_COMMANDS_ANALYSIS.md](docs/CLI_COMMANDS_ANALYSIS.md) for the full roadmap.
 

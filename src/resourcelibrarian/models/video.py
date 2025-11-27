@@ -153,3 +153,25 @@ class Video(BaseModel):
             List of summary type names
         """
         return list(self.manifest.summaries.keys())
+
+    @classmethod
+    def from_folder(cls, folder_path: Path) -> "Video":
+        """Load a video from its folder.
+
+        Args:
+            folder_path: Path to video folder containing manifest.yaml
+
+        Returns:
+            Video instance
+
+        Raises:
+            FileNotFoundError: If folder or manifest doesn't exist
+        """
+        # Import here to avoid circular dependency
+        from resourcelibrarian.utils.io import load_video_manifest
+
+        if not folder_path.exists():
+            raise FileNotFoundError(f"Video folder not found: {folder_path}")
+
+        manifest = load_video_manifest(folder_path)
+        return cls(folder_path=folder_path, manifest=manifest)

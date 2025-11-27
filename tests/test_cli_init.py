@@ -17,7 +17,7 @@ Documentation:
 - CliRunner: https://typer.tiangolo.com/tutorial/testing/#the-clirunner
 """
 
-import json
+import yaml
 from typer.testing import CliRunner
 from resourcelibrarian.cli.commands import app
 
@@ -44,8 +44,8 @@ def test_init_command_creates_library(tmp_path):
     """Test that 'rl init' creates a complete library structure."""
     library_path = tmp_path / "test-library"
 
-    # Test current form (direct invocation, since init is the only command)
-    result = runner.invoke(app, [str(library_path)])
+    # Use explicit 'init' subcommand (now that we have multiple commands)
+    result = runner.invoke(app, ["init", str(library_path)])
 
     # Command should succeed
     assert result.exit_code == 0
@@ -55,7 +55,7 @@ def test_init_command_creates_library(tmp_path):
     assert str(library_path) in result.stdout
 
     # Verify directory structure exists
-    assert (library_path / ".metadata").exists()
+    assert (library_path / "_index").exists()  # Library-wide index
     assert (library_path / "books").exists()
     assert (library_path / "books" / "_index").exists()
     assert (library_path / "videos").exists()
@@ -63,48 +63,33 @@ def test_init_command_creates_library(tmp_path):
 
 
 def test_init_command_creates_catalog_file(tmp_path):
-    """Test that 'rl init' creates catalog.json."""
+    """Test that 'rl init' creates catalog.yaml."""
     library_path = tmp_path / "test-library"
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     assert result.exit_code == 0
 
-    catalog_file = library_path / ".metadata" / "catalog.json"
+    catalog_file = library_path / "catalog.yaml"
     assert catalog_file.exists()
 
     # Verify catalog structure
-    catalog_data = json.loads(catalog_file.read_text())
+    catalog_data = yaml.safe_load(catalog_file.read_text())
     assert catalog_data["version"] == "1.0"
     assert catalog_data["books"] == []
     assert catalog_data["videos"] == []
-
-
-def test_init_command_creates_video_state_file(tmp_path):
-    """Test that 'rl init' creates video_processing_state.json."""
-    library_path = tmp_path / "test-library"
-
-    result = runner.invoke(app, [str(library_path)])
-
-    assert result.exit_code == 0
-
-    state_file = library_path / ".metadata" / "video_processing_state.json"
-    assert state_file.exists()
-
-    # Verify state structure
-    state_data = json.loads(state_file.read_text())
-    assert state_data["processed"] == []
-    assert state_data["failed"] == []
-    assert state_data["pending"] == []
 
 
 def test_init_command_creates_index_files(tmp_path):
     """Test that 'rl init' creates index markdown files."""
     library_path = tmp_path / "test-library"
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     assert result.exit_code == 0
+
+    # Library-wide index
+    assert (library_path / "_index" / "README.md").exists()
 
     # Books indices
     assert (library_path / "books" / "_index" / "authors.md").exists()
@@ -119,7 +104,7 @@ def test_init_command_fails_if_directory_exists(tmp_path):
     library_path = tmp_path / "test-library"
     library_path.mkdir()  # Create directory first
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     # Command should fail with exit code 1
     assert result.exit_code == 1
@@ -133,27 +118,27 @@ def test_init_command_shows_next_steps(tmp_path):
     """Test that 'rl init' shows helpful next steps."""
     library_path = tmp_path / "test-library"
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     assert result.exit_code == 0
 
     # Should show next steps
     assert "Next steps:" in result.stdout
-    assert "rl add book" in result.stdout
-    assert "rl fetch video" in result.stdout
-    assert "rl catalog build" in result.stdout
+    assert "rl book add" in result.stdout
+    assert "rl video fetch" in result.stdout
+    assert "rl catalog rebuild" in result.stdout
 
 
 def test_init_command_output_formatting(tmp_path):
     """Test that 'rl init' uses Rich formatting."""
     library_path = tmp_path / "test-library"
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     assert result.exit_code == 0
 
     # Should mention directory structure
-    assert ".metadata/" in result.stdout
+    assert "_index/" in result.stdout
     assert "books/" in result.stdout
     assert "videos/" in result.stdout
 
@@ -162,13 +147,13 @@ def test_init_command_with_nested_path(tmp_path):
     """Test that 'rl init' can create nested directory paths."""
     library_path = tmp_path / "parent" / "child" / "library"
 
-    result = runner.invoke(app, [str(library_path)])
+    result = runner.invoke(app, ["init", str(library_path)])
 
     assert result.exit_code == 0
 
     # Should create parent directories
     assert library_path.exists()
-    assert (library_path / ".metadata").exists()
+    assert (library_path / "_index").exists()
 
 
 def test_init_command_with_relative_path(tmp_path):
@@ -184,10 +169,10 @@ def test_init_command_with_relative_path(tmp_path):
     original_cwd = os.getcwd()
     try:
         os.chdir(tmp_path)
-        result = runner.invoke(app, [library_name])
+        result = runner.invoke(app, ["init", library_name])
 
         assert result.exit_code == 0
         assert library_path.exists()
-        assert (library_path / ".metadata").exists()
+        assert (library_path / "_index").exists()
     finally:
         os.chdir(original_cwd)

@@ -2,6 +2,11 @@
 
 from pathlib import Path
 import json
+from typing import Optional
+
+from resourcelibrarian.models.catalog import LibraryCatalog
+from resourcelibrarian.models.book import Book
+from resourcelibrarian.models.video import Video
 
 
 class ResourceLibrary:
@@ -36,10 +41,6 @@ class ResourceLibrary:
                 └── source/transcript.txt
     """
 
-    METADATA_DIR = ".metadata"
-    CATALOG_FILE = "catalog.json"
-    VIDEO_STATE_FILE = "video_processing_state.json"
-
     def __init__(self, root_path: Path | str):
         """Initialize a ResourceLibrary instance.
 
@@ -47,11 +48,10 @@ class ResourceLibrary:
             root_path: Path to the library root directory
         """
         self.root = Path(root_path).resolve()
-        self.metadata_dir = self.root / self.METADATA_DIR
-        self.catalog_path = self.metadata_dir / self.CATALOG_FILE
-        self.video_state_path = self.metadata_dir / self.VIDEO_STATE_FILE
+        self.catalog_path = self.root / "catalog.yaml"
         self.books_dir = self.root / "books"
         self.videos_dir = self.root / "videos"
+        self.index_dir = self.root / "_index"
 
     @classmethod
     def initialize(cls, root_path: Path | str) -> "ResourceLibrary":
@@ -80,19 +80,18 @@ class ResourceLibrary:
         # Create root directory
         root.mkdir(parents=True, exist_ok=False)
 
-        # Create metadata directory and files
-        metadata_dir = root / cls.METADATA_DIR
-        metadata_dir.mkdir()
+        # Create empty catalog as YAML (using catalog manager)
+        from resourcelibrarian.core.catalog_manager import CatalogManager
+        from resourcelibrarian.models.catalog import LibraryCatalog
 
-        # Create empty catalog
-        catalog_path = metadata_dir / cls.CATALOG_FILE
-        empty_catalog = {"version": "1.0", "books": [], "videos": [], "last_updated": None}
-        catalog_path.write_text(json.dumps(empty_catalog, indent=2))
+        empty_catalog = LibraryCatalog(books=[], videos=[], library_path=root, last_updated=None)
+        catalog_mgr = CatalogManager(root)
+        catalog_mgr.save_catalog(empty_catalog)
 
-        # Create empty video processing state
-        video_state_path = metadata_dir / cls.VIDEO_STATE_FILE
-        empty_state = {"processed": [], "failed": [], "pending": []}
-        video_state_path.write_text(json.dumps(empty_state, indent=2))
+        # Create library-wide index directory
+        library_index_dir = root / "_index"
+        library_index_dir.mkdir()
+        (library_index_dir / "README.md").write_text("# Library Index\n\n")
 
         # Create books directory structure
         books_dir = root / "books"
@@ -119,7 +118,6 @@ class ResourceLibrary:
         """
         return (
             self.root.exists()
-            and self.metadata_dir.exists()
             and self.catalog_path.exists()
             and self.books_dir.exists()
             and self.videos_dir.exists()
@@ -132,3 +130,17 @@ class ResourceLibrary:
     def __repr__(self) -> str:
         """Developer representation of the library."""
         return f"ResourceLibrary(root_path={self.root!r})"
+
+    def load_catalog(self) -> LibraryCatalog:
+        """Load the library catalog from disk.
+
+        Returns:
+            LibraryCatalog instance with all books and videos
+
+        Raises:
+            FileNotFoundError: If catalog file doesn't exist
+        """
+        from resourcelibrarian.core.catalog_manager import CatalogManager
+
+        catalog_mgr = CatalogManager(self.root)
+        return catalog_mgr.load_catalog()

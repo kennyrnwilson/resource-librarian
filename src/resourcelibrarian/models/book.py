@@ -127,3 +127,25 @@ class Book(BaseModel):
             List of summary type names
         """
         return list(self.manifest.summaries.keys())
+
+    @classmethod
+    def from_folder(cls, folder_path: Path) -> "Book":
+        """Load a book from its folder.
+
+        Args:
+            folder_path: Path to book folder containing manifest.yaml
+
+        Returns:
+            Book instance
+
+        Raises:
+            FileNotFoundError: If folder or manifest doesn't exist
+        """
+        # Import here to avoid circular dependency
+        from resourcelibrarian.utils.io import load_book_manifest
+
+        if not folder_path.exists():
+            raise FileNotFoundError(f"Book folder not found: {folder_path}")
+
+        manifest = load_book_manifest(folder_path)
+        return cls(folder_path=folder_path, manifest=manifest)
