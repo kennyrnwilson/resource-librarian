@@ -8,5 +8,15 @@ This module provides Pydantic models for:
 """
 
 from resourcelibrarian.models.base import SourceKind
+from resourcelibrarian.models.book import Book, BookManifest
+from resourcelibrarian.models.catalog import LibraryCatalog
+from resourcelibrarian.models.video import Video, VideoManifest
 
-__all__ = ["SourceKind"]
+__all__ = [
+    "SourceKind",
+    "Book",
+    "BookManifest",
+    "Video",
+    "VideoManifest",
+    "LibraryCatalog",
+]
