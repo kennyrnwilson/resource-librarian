@@ -8,7 +8,6 @@ This module generates beautiful Markdown index files for navigation:
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
-from typing import Optional
 
 from resourcelibrarian.models.catalog import LibraryCatalog
 from resourcelibrarian.models.book import Book
@@ -316,7 +315,7 @@ class IndexGenerator:
             "## Metadata",
             "",
             f"- **Location:** `{book.folder_path.relative_to(self.library_root)}`",
-            f"- **Manifest:** [manifest.yaml](manifest.yaml)",
+            "- **Manifest:** [manifest.yaml](manifest.yaml)",
             "",
         ])
 
@@ -378,7 +377,7 @@ class IndexGenerator:
             "## Metadata",
             "",
             f"- **Location:** `{video.folder_path.relative_to(self.library_root)}`",
-            f"- **Manifest:** [manifest.yaml](manifest.yaml)",
+            "- **Manifest:** [manifest.yaml](manifest.yaml)",
             f"- **Channel ID:** {video.channel_id}",
             "",
         ])

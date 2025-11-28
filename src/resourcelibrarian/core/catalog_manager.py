@@ -8,7 +8,6 @@ This module provides functionality for:
 
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
 
 from resourcelibrarian.models.catalog import LibraryCatalog
 from resourcelibrarian.models.book import Book

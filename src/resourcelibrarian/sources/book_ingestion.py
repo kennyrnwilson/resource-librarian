@@ -12,7 +12,7 @@ from resourcelibrarian.sources.book_parser import (
     extract_metadata_from_text,
 )
 from resourcelibrarian.sources.epub_chapter_extractor import EpubChapterExtractor
-from resourcelibrarian.utils import compute_file_hash, save_book_manifest
+from resourcelibrarian.utils import save_book_manifest
 
 
 def slugify(text: str) -> str:

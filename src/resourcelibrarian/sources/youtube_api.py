@@ -1,7 +1,6 @@
 """YouTube API wrapper for fetching video metadata."""
 
 import os
-import re
 from typing import Optional
 
 from googleapiclient.discovery import build

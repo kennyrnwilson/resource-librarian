@@ -1,19 +1,27 @@
 # Claude Code Session State
 
 **Project:** resource-librarian
-**Last Updated:** 2025-11-26 06:40 UTC
-**Status:** Phase 0 COMPLETE ✅ - Starting Phase 1
+**Last Updated:** 2025-11-28
+**Status:** Phase 5 COMPLETE ✅ - Full Cataloging System Implemented
 
 ## Current Context
 
-Phase 0 (Core Infrastructure & CLI Init) has been successfully completed and pushed to GitHub.
+Phase 5 (Full Cataloging System) has been successfully completed with all 191 tests passing.
 
-**Latest Session Accomplishments (2025-11-26):**
+**Latest Session Accomplishments (2025-11-28):**
+- ✅ Implemented full cataloging system with YAML-based catalog
+- ✅ Created CatalogManager for CRUD operations on catalog.yaml
+- ✅ Created IndexGenerator for markdown navigation indices
+- ✅ Added catalog CLI commands (rebuild, stats)
+- ✅ Fixed all 191 tests to work with new catalog structure
+- ✅ Updated documentation to reflect catalog.yaml and _index/ structure
+- ✅ Migrated from .metadata/catalog.json to catalog.yaml at root
+- 📊 Test Coverage: All 191 tests passing
+
+**Previous Session (2025-11-26):**
 - ✅ Published package to TestPyPI
 - ✅ Verified installation from TestPyPI works correctly
 - ✅ Tested `rl init` command from installed package
-- ✅ Updated session state documentation
-- 🚀 Starting Phase 1: Core Data Models
 
 **Previous Session (2025-11-17):**
 - ✅ Recovered session state from previous context overflow
@@ -25,11 +33,11 @@ Phase 0 (Core Infrastructure & CLI Init) has been successfully completed and pus
 - ✅ GitHub Actions CI/CD now running automatically
 
 **Current Status:**
-- All 21 tests passing (84% coverage)
+- All 191 tests passing (comprehensive coverage)
 - All Ruff linting checks passing
 - All Ruff formatting checks passing
 - Code pushed to GitHub: https://github.com/kennyrnwilson/resource-librarian
-- CI/CD workflow active: https://github.com/kennyrnwilson/resource-librarian/actions
+- Full cataloging system implemented and tested
 
 ## Current Plan
 
@@ -41,23 +49,78 @@ Phase 0: Core Infrastructure & CLI Init ✅
 - [x] Add VS Code debugging support (2025-11-16)
 - [x] Set up GitHub Actions workflow (2025-11-17)
 
-Phase 1: Core Data Models (NEXT - Ready to Start)
-- [ ] Design Book and Video Pydantic models
-  - [ ] Create base.py with SourceKind enum
-  - [ ] Create book.py with Book metadata model
-  - [ ] Create video.py with Video metadata model
-  - [ ] Create catalog.py with Catalog model
-- [ ] Implement metadata extraction utilities
-- [ ] Create catalog management system
-- [ ] Add unit tests for models
+Phase 1-4: Core Functionality ✅
+- [x] Pydantic models (Book, Video, Catalog)
+- [x] Book ingestion (rl book add, rl book list, rl book get)
+- [x] Video ingestion (rl video fetch, rl video list, rl video get)
+- [x] YouTube transcript fetching
+- [x] Metadata extraction and management
 
-**Next Session Should Start With:**
-1. Read docs/IMPLEMENTATION_PLAN.md Phase 1 section
-2. Examine source project models at /home/kenne/resource-library-tools/
-3. Design Pydantic models based on existing YAML manifests
-4. Create base.py first (fix models/__init__.py import)
+Phase 5: Full Cataloging System ✅ (JUST COMPLETED)
+- [x] Create CatalogManager module (2025-11-28)
+  - [x] save_catalog() - Write catalog to YAML
+  - [x] load_catalog() - Read catalog from YAML
+  - [x] add_book_to_catalog() - Update catalog when book added
+  - [x] add_video_to_catalog() - Update catalog when video added
+  - [x] rebuild_catalog() - Regenerate from filesystem
+- [x] Create IndexGenerator module (2025-11-28)
+  - [x] generate_all_indices() - Create all markdown indices
+  - [x] generate_book_indices() - Authors and titles lists
+  - [x] generate_video_indices() - Channels list
+  - [x] generate_library_index() - Library-wide README
+- [x] Add catalog CLI commands (2025-11-28)
+  - [x] rl catalog rebuild - Rescan filesystem
+  - [x] rl catalog stats - Show library statistics
+- [x] Update book/video commands to regenerate indices (2025-11-28)
+- [x] Migrate from catalog.json to catalog.yaml (2025-11-28)
+- [x] Fix all 191 tests for new catalog structure (2025-11-28)
+- [x] Update documentation (README.md, CLI help) (2025-11-28)
+
+**Next Steps (Optional):**
+Phase 5 is complete. Potential future work:
+- Phase 6: Implement search functionality
+- Phase 7: Add summary generation
+- Phase 8: Implement export features
+- Additional features as needed by user
 
 ## Completed Tasks
+
+### Phase 5: Full Cataloging System (2025-11-28)
+- [x] Created [src/resourcelibrarian/services/catalog_manager.py](src/resourcelibrarian/services/catalog_manager.py)
+  - save_catalog() - Writes catalog to catalog.yaml with atomic write
+  - load_catalog() - Reads and validates catalog from YAML
+  - add_book_to_catalog() - Appends book entry, regenerates indices
+  - add_video_to_catalog() - Appends video entry, regenerates indices
+  - rebuild_catalog() - Scans filesystem and rebuilds catalog from scratch
+  - get_library_stats() - Returns counts of books/videos
+- [x] Created [src/resourcelibrarian/services/index_generator.py](src/resourcelibrarian/services/index_generator.py)
+  - generate_all_indices() - Generates all markdown index files
+  - generate_book_indices() - Creates books/_index/authors.md and titles.md
+  - generate_video_indices() - Creates videos/_index/channels.md
+  - generate_library_index() - Creates _index/README.md with library overview
+  - Uses relative links for navigation (e.g., `../books/author-name/book-title/`)
+- [x] Added catalog CLI commands in [src/resourcelibrarian/cli/commands.py](src/resourcelibrarian/cli/commands.py)
+  - `rl catalog rebuild` - Regenerate catalog from filesystem
+  - `rl catalog stats` - Display library statistics
+- [x] Updated book commands to auto-generate indices after adding books
+- [x] Updated video commands to auto-generate indices after fetching videos
+- [x] Migrated from `.metadata/catalog.json` to `catalog.yaml` at library root
+- [x] Fixed all 191 tests:
+  - Updated [tests/test_library.py](tests/test_library.py) - catalog.yaml paths and structure
+  - Updated [tests/test_cli_init.py](tests/test_cli_init.py) - YAML format, _index/ checks
+  - Updated [tests/test_cli_book.py](tests/test_cli_book.py) - Helper functions, flat catalog structure
+  - Updated [tests/test_cli_video.py](tests/test_cli_video.py) - YAML catalog format
+- [x] Updated documentation:
+  - [README.md](README.md) - Added catalog commands section, updated directory structure
+  - CLI help text - Updated init command to mention catalog.yaml and _index/
+
+### Phase 1-4: Core Functionality (2025-11-26 to 2025-11-27)
+- [x] Implemented Pydantic models (Book, Video, Catalog)
+- [x] Implemented book ingestion (rl book add, rl book list, rl book get)
+- [x] Implemented video ingestion (rl video fetch, rl video list, rl video get)
+- [x] Added YouTube transcript fetching with youtube-transcript-api
+- [x] Created metadata extraction utilities
+- [x] Comprehensive test suite for all functionality
 
 ### Phase 0: Core Infrastructure & CLI Init (2025-11-16 to 2025-11-17)
 - [x] Created project structure with src/, tests/, docs/
@@ -75,17 +138,41 @@ Phase 1: Core Data Models (NEXT - Ready to Start)
 - [x] Updated README.md with usage instructions
 - [x] Created comprehensive CLAUDE.MD project guide
 - [x] Created CLI_COMMANDS_ANALYSIS.md with 21 commands to implement
+- [x] Published to TestPyPI
 
 ## Session History
+
+### 2025-11-28 (Phase 5 Complete - Full Cataloging System)
+- Accomplished:
+  - Implemented complete cataloging system with CatalogManager and IndexGenerator
+  - Migrated from catalog.json to catalog.yaml at library root
+  - Fixed all 191 tests to work with new catalog structure
+  - Updated documentation (README.md, CLI help text)
+  - Added catalog rebuild and stats commands
+- Status: Phase 5 fully complete, all 191 tests passing
+- Notes:
+  - Catalog is now YAML-based for better human readability
+  - Indices auto-regenerate when books/videos are added
+  - Relative links in markdown indices for easy navigation
+  - Catalog rebuild command useful if catalog gets out of sync
+
+### 2025-11-26 to 2025-11-27 (Phase 1-4 Complete)
+- Accomplished: Core functionality implemented
+  - Pydantic models for Book, Video, Catalog
+  - Book ingestion commands (add, list, get)
+  - Video ingestion commands (fetch, list, get)
+  - YouTube transcript fetching
+  - Comprehensive test suite (191 tests)
+- Status: Phase 1-4 complete, ready for Phase 5
 
 ### 2025-11-17 (Session Recovery)
 - Accomplished: Reviewed complete session history from previous context
 - Status: Phase 0 fully complete, ready for Phase 1
 - Notes: All 21 tests passing, 85% coverage, GitHub Actions configured
 
-### 2025-11-16 (Previous Session)
+### 2025-11-16 (Phase 0 Complete)
 - Accomplished: Complete implementation of `rl init` command
-- Next steps: Begin Phase 1 (Core Data Models) or user direction
+- Status: Phase 0 complete
 - Notes:
   - Changed CLI name from 'kh' to 'rl'
   - Used '.metadata' directory (not '.knowledgehub')
@@ -95,11 +182,11 @@ Phase 1: Core Data Models (NEXT - Ready to Start)
 ## Blockers/Issues
 
 None currently. Project is in excellent state:
-- All tests passing (21/21)
-- Code coverage at 85% (above 80% target)
-- All linting passing
+- All tests passing (191/191)
+- Comprehensive test coverage
+- All linting passing (Ruff)
 - Documentation complete and up-to-date
-- CI/CD configured
+- Full cataloging system implemented and working
 
 ## Important Context
 
@@ -142,23 +229,46 @@ resource-librarian/
 └── pyproject.toml
 ```
 
-### Commands Implemented
+### Commands Implemented (Core Functionality Complete)
 - ✅ `rl init <path>` - Initialize new library
+- ✅ `rl book add <file>` - Add book to library
+- ✅ `rl book list` - List all books
+- ✅ `rl book get <title>` - Get specific book details
+- ✅ `rl video fetch <url>` - Fetch YouTube video transcript
+- ✅ `rl video list` - List all videos
+- ✅ `rl video get <video-id>` - Get specific video details
+- ✅ `rl catalog rebuild` - Rebuild catalog from filesystem
+- ✅ `rl catalog stats` - Show library statistics
 
-### Commands To Implement (20 remaining)
-See docs/CLI_COMMANDS_ANALYSIS.md for complete list organized by:
-- Setup & Status
-- Book Ingestion (add, convert)
-- Video Ingestion (fetch, video-state)
-- Catalog & Browsing
-- Utilities
+### Library Structure
+```
+my-library/
+├── catalog.yaml                    # Library catalog (YAML format)
+├── _index/                         # Library-wide navigation
+│   └── README.md                   # Library overview with stats
+├── books/                          # Book storage
+│   ├── _index/
+│   │   ├── authors.md             # Books grouped by author
+│   │   └── titles.md              # Alphabetical book list
+│   └── [author-name]/
+│       └── [book-title]/
+│           ├── manifest.yaml      # Book metadata
+│           └── content.txt        # Book content
+└── videos/                         # YouTube transcripts
+    ├── _index/
+    │   └── channels.md            # Videos grouped by channel
+    └── [channel-name]/
+        └── [video-title]/
+            ├── manifest.yaml      # Video metadata
+            └── transcript.txt     # Video transcript
+```
 
-### Test Coverage Details
-- Overall: 85%
-- src/resourcelibrarian/library.py: 100%
-- src/resourcelibrarian/cli/commands.py: 100%
-- src/resourcelibrarian/__main__.py: 100%
-- src/resourcelibrarian/__init__.py: 0% (empty file, acceptable)
+### Key Features
+- **YAML-based catalog** at library root (catalog.yaml)
+- **Auto-generated markdown indices** for navigation
+- **Relative links** in indices for easy browsing
+- **Automatic index regeneration** when resources added
+- **Catalog rebuild** command to resync from filesystem
 
 ### VS Code Debug Configurations Available
 1. "RL: init command (debug library)" - Uses /tmp/debug-library

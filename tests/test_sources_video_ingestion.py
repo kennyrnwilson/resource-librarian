@@ -1,7 +1,5 @@
 """Tests for video ingestion functionality."""
 
-from datetime import datetime
-from pathlib import Path
 
 import pytest
 

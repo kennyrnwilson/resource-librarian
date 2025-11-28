@@ -1,12 +1,8 @@
 """Core ResourceLibrary class for managing a digital library."""
 
 from pathlib import Path
-import json
-from typing import Optional
 
 from resourcelibrarian.models.catalog import LibraryCatalog
-from resourcelibrarian.models.book import Book
-from resourcelibrarian.models.video import Video
 
 
 class ResourceLibrary:
