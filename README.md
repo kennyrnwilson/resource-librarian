@@ -170,7 +170,7 @@ The `import-folder` command will:
 
 **Note:** Both `book add` and `book import-folder` create the same organized structure:
 
-```
+```text
 books/author-lastname-firstname/book-title/
 ├── full-book-formats/              # All book formats
 │   ├── book-title.epub             # Original EPUB
@@ -261,61 +261,7 @@ The catalog is automatically updated when you add books or fetch videos. The `re
 
 Your library is organized in a clear filesystem hierarchy:
 
-```mermaid
-graph TB
-    Library[📁 my-library/]
-
-    Library --> CatalogFile[📄 catalog.yaml]
-    Library --> LibIndex[📁 _index/]
-    Library --> Books[📁 books/]
-    Library --> Videos[📁 videos/]
-
-    LibIndex --> LibReadme[📄 README.md]
-
-    Books --> BooksIndex[📁 _index/]
-    Books --> Author[📁 smith-john/]
-
-    BooksIndex --> AuthorsMd[📄 authors.md]
-    BooksIndex --> TitlesMd[📄 titles.md]
-
-    Author --> BookFolder[📁 python-programming/]
-
-    BookFolder --> Manifest[📄 manifest.yaml]
-    BookFolder --> IndexMd[📄 index.md]
-    BookFolder --> Epub[📄 book.epub]
-    BookFolder --> Pdf[📄 book.pdf]
-    BookFolder --> Md[📄 book.md]
-    BookFolder --> Chapters[📁 chapters/]
-    BookFolder --> Summaries[📁 summaries/]
-
-    Chapters --> Ch1[📄 1-introduction.md]
-    Chapters --> Ch2[📄 2-mentoring.md]
-
-    Summaries --> Summary[📄 shortform-summary.md]
-
-    Videos --> VideosIndex[📁 _index/]
-    Videos --> Channel[📁 tech-channel/]
-
-    VideosIndex --> ChannelsMd[📄 channels.md]
-
-    Channel --> Video1[📁 video-title-1/]
-    Channel --> Video2[📁 video-title-2/]
-
-    Video1 --> V1Manifest[📄 manifest.yaml]
-    Video1 --> V1Transcript[📄 transcript.md]
-
-    Video2 --> V2Manifest[📄 manifest.yaml]
-    Video2 --> V2Transcript[📄 transcript.md]
-
-    style Library fill:#e1f5ff
-    style Books fill:#fff4e1
-    style Videos fill:#ffe1f5
-    style Metadata fill:#f0f0f0
-```
-
-**Structure Overview:**
-
-```
+```text
 my-library/
 ├── README.md                      # Root library index with stats & recent additions
 ├── catalog.yaml                   # Searchable library catalog
@@ -327,10 +273,15 @@ my-library/
 │   └── smith-john/               # Books organized by author
 │       └── python-programming/
 │           ├── manifest.yaml     # Book metadata
-│           ├── index.md          # Book navigation page
-│           ├── *.epub, *.pdf, *.md  # Multiple formats
-│           ├── chapters/         # Individual chapters
+│           ├── full-book-formats/  # All book formats
+│           │   ├── python-programming.epub
+│           │   ├── python-programming.pdf
+│           │   ├── python-programming.md
+│           │   └── chapters/     # Extracted chapters
+│           │       ├── 01-introduction.md
+│           │       └── 02-basics.md
 │           └── summaries/        # Book summaries
+│               └── shortform-summary.md
 ├── videos/
 │   ├── _index/
 │   │   ├── channels.md           # Videos grouped by channel
