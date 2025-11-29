@@ -379,7 +379,11 @@ def book_add(
                 f"[bold]Author:[/bold] {book.author}\n"
                 f"[bold]Formats:[/bold] {formats_str}\n"
                 f"[bold]Location:[/bold] {book.folder_path.relative_to(library.root)}\n"
-                + (f"[bold]Categories:[/bold] {', '.join(book.categories)}\n" if book.categories else "")
+                + (
+                    f"[bold]Categories:[/bold] {', '.join(book.categories)}\n"
+                    if book.categories
+                    else ""
+                )
                 + (f"[bold]Tags:[/bold] {', '.join(book.tags)}\n" if book.tags else "")
                 + (f"[bold]ISBN:[/bold] {book.manifest.isbn}\n" if book.manifest.isbn else ""),
                 title="[bold green]Book Added[/bold green]",
@@ -409,6 +413,212 @@ def book_add(
                 f"  • For PDF/Markdown, use --title and --author options\n"
                 f"  • Check that the file is a valid book format",
                 title="[bold red]Invalid Book[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] An unexpected error occurred:\n\n{str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+
+
+@book_app.command("import-folder")
+def book_import_folder(
+    folder_path: str = typer.Argument(..., help="Path to structured book folder"),
+    library_path: str = typer.Option(
+        ".",
+        "--library",
+        "-l",
+        help="Path to the library (default: current directory)",
+    ),
+    title: Optional[str] = typer.Option(
+        None,
+        "--title",
+        "-t",
+        help="Book title (auto-detected if not provided)",
+    ),
+    author: Optional[str] = typer.Option(
+        None,
+        "--author",
+        "-a",
+        help="Book author (auto-detected if not provided)",
+    ),
+    categories: Optional[str] = typer.Option(
+        None,
+        "--categories",
+        "-c",
+        help="Comma-separated list of categories",
+    ),
+    tags: Optional[str] = typer.Option(
+        None,
+        "--tags",
+        help="Comma-separated list of tags",
+    ),
+    isbn: Optional[str] = typer.Option(
+        None,
+        "--isbn",
+        help="ISBN number",
+    ),
+):
+    """Import a book from a structured folder.
+
+    This command scans a folder containing book files and summaries organized in a
+    specific structure:
+
+    Folder structure:
+        my-book/
+        ├── my-book.epub           # Main book file (folder-name.ext)
+        ├── my-book.pdf            # Alternative format
+        ├── my-book-summary-shortform.pdf    # Summary files
+        └── my-book-summary-claude.md
+
+    The command will:
+    - Auto-detect book formats (PDF, EPUB, Markdown)
+    - Auto-detect summary files with naming pattern: folder-name-summary-type.ext
+    - Convert summaries to Markdown if needed
+    - Extract chapters from EPUB files
+    - Auto-detect metadata from EPUB or text content
+
+    Examples:
+        rl book import-folder /path/to/my-book-folder
+        rl book import-folder ./books/python-programming --categories "Programming,Python"
+        rl book import-folder ./deep-learning --title "Deep Learning" --author "Ian Goodfellow"
+    """
+    try:
+        # Import here to avoid circular dependencies
+        from resourcelibrarian.sources.book_ingestion import BookIngestion
+
+        # Validate folder exists
+        source_folder = Path(folder_path)
+        if not source_folder.exists():
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] Folder not found: {folder_path}\n\n"
+                    f"[dim]Please check the folder path and try again.[/dim]",
+                    title="[bold red]Folder Not Found[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        if not source_folder.is_dir():
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] Not a directory: {folder_path}\n\n"
+                    f"[dim]Please provide a path to a folder containing book files.[/dim]",
+                    title="[bold red]Not a Directory[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Load library
+        library = ResourceLibrary(library_path)
+        if not library.exists():
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] Not a valid Resource Library: {library.root}\n\n"
+                    f"[dim]Initialize a library first:[/dim]\n"
+                    f"  [cyan]rl init /path/to/library[/cyan]",
+                    title="[bold red]Library Not Found[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Parse categories and tags
+        category_list = [c.strip() for c in categories.split(",")] if categories else None
+        tag_list = [t.strip() for t in tags.split(",")] if tags else None
+
+        # Show processing message
+        console.print()
+        console.print(f"[cyan]Scanning folder:[/cyan] {source_folder.name}")
+        console.print()
+
+        # Import book from folder using ingestion system
+        ingestion = BookIngestion(library.root)
+        book = ingestion.add_book_from_folder(
+            folder_path=source_folder,
+            title=title,
+            author=author,
+            categories=category_list,
+            tags=tag_list,
+            isbn=isbn,
+        )
+
+        # Update catalog and regenerate indices
+        from resourcelibrarian.core.catalog_manager import CatalogManager
+        from resourcelibrarian.core.index_generator import IndexGenerator
+
+        catalog_mgr = CatalogManager(library.root)
+        catalog_mgr.add_book(book)
+
+        # Regenerate indices
+        catalog = catalog_mgr.load_catalog()
+        index_gen = IndexGenerator(library.root)
+        index_gen.generate_all_indices(catalog)
+
+        # Success message
+        formats_str = ", ".join(book.list_formats())
+        summaries_str = ", ".join(book.list_summaries()) if book.list_summaries() else "None"
+
+        console.print(
+            Panel.fit(
+                f"[green]✓[/green] Book imported successfully!\n\n"
+                f"[bold]Title:[/bold] {book.title}\n"
+                f"[bold]Author:[/bold] {book.author}\n"
+                f"[bold]Formats:[/bold] {formats_str}\n"
+                f"[bold]Summaries:[/bold] {summaries_str}\n"
+                f"[bold]Location:[/bold] {book.folder_path.relative_to(library.root)}\n"
+                + (
+                    f"[bold]Categories:[/bold] {', '.join(book.categories)}\n"
+                    if book.categories
+                    else ""
+                )
+                + (f"[bold]Tags:[/bold] {', '.join(book.tags)}\n" if book.tags else "")
+                + (f"[bold]ISBN:[/bold] {book.manifest.isbn}\n" if book.manifest.isbn else ""),
+                title="[bold green]Book Imported[/bold green]",
+                border_style="green",
+            )
+        )
+        console.print()
+
+    except FileNotFoundError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except ValueError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}\n\n"
+                f"[dim]Tips:[/dim]\n"
+                f"  • Ensure the folder contains book files named: folder-name.epub, folder-name.pdf, etc.\n"
+                f"  • Summary files should be named: folder-name-summary-type.ext\n"
+                f"  • For folders without EPUB metadata, use --title and --author options",
+                title="[bold red]Import Failed[/bold red]",
                 border_style="red",
             )
         )
@@ -485,7 +695,7 @@ def book_get(
                     f"[red]✗[/red] Book not found: {title}\n\n"
                     f"[dim]Try:[/dim]\n"
                     f"  [cyan]rl book list[/cyan] - to see all books\n"
-                    f"  [cyan]rl book list --title \"{title.split()[0]}\"[/cyan] - to search for similar titles",
+                    f'  [cyan]rl book list --title "{title.split()[0]}"[/cyan] - to search for similar titles',
                     title="[bold red]Book Not Found[/bold red]",
                     border_style="red",
                 )
@@ -579,7 +789,7 @@ def book_get(
                     Panel.fit(
                         f"[yellow]⚠[/yellow] Cannot display {selected_format} format in terminal.\n\n"
                         f"[dim]Use --output option to save to a file:[/dim]\n"
-                        f"  [cyan]rl book get \"{title}\" --format {selected_format} --output book.{selected_format}[/cyan]",
+                        f'  [cyan]rl book get "{title}" --format {selected_format} --output book.{selected_format}[/cyan]',
                         title="[bold yellow]Binary Format[/bold yellow]",
                         border_style="yellow",
                     )
@@ -732,11 +942,7 @@ def video_fetch(
                     if video.manifest.categories
                     else ""
                 )
-                + (
-                    f"[bold]Tags:[/bold] {', '.join(video.tags)}\n"
-                    if video.tags
-                    else ""
-                ),
+                + (f"[bold]Tags:[/bold] {', '.join(video.tags)}\n" if video.tags else ""),
                 title="[bold green]Video Added[/bold green]",
                 border_style="green",
             )
@@ -827,9 +1033,7 @@ def video_list(
         catalog = library.load_catalog()
 
         # Apply filters
-        videos = catalog.search_videos(
-            channel=channel, category=category, tag=tag, title=title
-        )
+        videos = catalog.search_videos(channel=channel, category=category, tag=tag, title=title)
 
         if not videos:
             console.print()
@@ -861,13 +1065,9 @@ def video_list(
 
         for video in videos:
             categories_str = (
-                ", ".join(video.manifest.categories)
-                if video.manifest.categories
-                else "-"
+                ", ".join(video.manifest.categories) if video.manifest.categories else "-"
             )
-            table.add_row(
-                video.title, video.channel_title, video.video_id, categories_str
-            )
+            table.add_row(video.title, video.channel_title, video.video_id, categories_str)
 
         console.print()
         console.print(table)
@@ -953,7 +1153,7 @@ def video_get(
                     f"[red]✗[/red] Video not found: {identifier}\n\n"
                     f"[dim]Try:[/dim]\n"
                     f"  [cyan]rl video list[/cyan] - to see all videos\n"
-                    f"  [cyan]rl video list --title \"search term\"[/cyan] - to search for videos",
+                    f'  [cyan]rl video list --title "search term"[/cyan] - to search for videos',
                     title="[bold red]Video Not Found[/bold red]",
                     border_style="red",
                 )

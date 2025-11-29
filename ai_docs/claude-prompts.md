@@ -286,3 +286,171 @@ Can you update the user level CLAUDE.md so that it always stores the session sta
 **Result:** Session tracking files now organized in `ai_docs/` folder, separate from project documentation in `docs/`. All future sessions will follow this structure automatically.
 
 ---
+
+---
+
+## [2025-11-29] Enhanced Index Generation
+
+**User Input:**
+```
+Please continue the conversation from where we left it off without asking the user any further questions. Continue with the last task that you were asked to work on.
+```
+
+**Context:**
+- Continuing from previous session that ran out of context
+- User asked to match the original library's polished README.md format
+- IndexGenerator needed complete rewrite to match /mnt/c/Users/kenne/OneDrive/resource-libary/ format
+
+**Actions Taken:**
+
+1. **Global Template Updates (earlier in session):**
+   - Updated /home/kenne/.claude/CLAUDE.md to store user input in code blocks
+   - Moved session tracking to ai_docs/ folder (not project root)
+   - Separated AI session tracking (ai_docs/) from project docs (docs/)
+
+2. **CLI Enhancements:**
+   - Added version command support (--version / -v) in commands.py
+   - Enhanced video get command to support lookup by title (not just ID)
+   - Added find_video_by_title() method to LibraryCatalog
+
+3. **Complete IndexGenerator Rewrite:**
+   - Rewrote [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py) (847 lines)
+   - Added root README.md generation (instead of _index/README.md)
+   - Added emojis throughout all index files
+   - Implemented Recent Additions section (5 most recent books)
+   - Implemented Quick Start section for readers and developers
+   - Enhanced statistics with formats, summaries, chapters counts
+   - Created videos by title index (videos/_index/titles.md)
+   - Added navigation breadcrumbs to all index pages (⬅️ Back links)
+   - Enhanced book index pages with formats/summaries/chapters listed
+   - Enhanced video index pages with better formatting and descriptions
+   - Implemented channel-level index files at channel folder (not separate)
+   - Added category index (categories/index.md) with all categories
+
+4. **Key Implementation Details:**
+   - Helper methods: _get_timestamp(), _count_book_formats(), _count_summaries(), _count_chapters(), _get_recent_additions()
+   - Channel index files go in existing channel folders (parent of video folders)
+   - Used double underscore (__) for channel slugs to match video folder structure
+   - Enhanced all indices with emoji headers: 📚 🎥 🔤 📺 🏷️ 🗂️
+   - Category links use markdown anchors (#category-name)
+   - Book/video indices show stats like "3 formats • 2 summaries • 10 chapters"
+
+5. **Test Fixes:**
+   - Updated test_cli_video.py to account for channel index.md file
+   - Test now expects 2 items in channel folder: video folder + index.md
+   - All 191 tests passing
+
+**Result:**
+- ✅ IndexGenerator completely rewritten to match original polished format
+- ✅ All index files now have emojis, rich formatting, breadcrumbs
+- ✅ Root README.md with statistics, Recent Additions, Quick Start
+- ✅ Channel-level indices, category index, videos by title index
+- ✅ All 191 tests passing
+- 📊 Test Coverage: 100% (191/191)
+
+**Files Modified:**
+- [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py) - Complete rewrite (847 lines)
+- [src/resourcelibrarian/cli/commands.py](src/resourcelibrarian/cli/commands.py) - Added version callback, enhanced video_get
+- [src/resourcelibrarian/models/catalog.py](src/resourcelibrarian/models/catalog.py) - Added find_video_by_title()
+- [tests/test_cli_video.py](tests/test_cli_video.py) - Updated to expect channel index.md
+
+**Session State:**
+- Updated [ai_docs/claude-session-state.md](ai_docs/claude-session-state.md) with Phase 5+ completion
+- Updated [ai_docs/claude-prompts.md](ai_docs/claude-prompts.md) (this file) with session details
+
+---
+
+## [2025-11-29 (Continued)] User Request: Documentation Updates
+
+**User Input:**
+```
+Did you update all documentation including manual testing doc
+```
+
+**Actions Taken:**
+1. Checked for all markdown files in the project using Glob
+2. Identified MANUAL_TESTING.md needs updating for Phase 5+ features
+3. Updated [MANUAL_TESTING.md](../MANUAL_TESTING.md) with comprehensive test sections:
+   - Test 15: Catalog Commands (Phase 5+) - rebuild and stats commands
+   - Test 16: Index Files Verification (Phase 5+) - root README, channel indices, category index, videos by title
+   - Test 17: Enhanced Video Get by Title (Phase 5+) - lookup by title instead of ID
+   - Test 18: Index Auto-Regeneration (Phase 5+) - verify indices update when resources added
+   - Test 19: Help and Documentation - added catalog subcommand help
+   - Updated Success Criteria section with Phase 5+ checklist
+4. Updated [README.md](../README.md) with Phase 5+ features:
+   - Enhanced "Library Organization" section with new index features
+   - Updated initial library structure to include README.md, videos/titles.md, categories/index.md
+   - Updated detailed structure overview with channel indices and categories
+   - Added version command to Command Reference section
+
+**Result:**
+- ✅ MANUAL_TESTING.md now has 5 new comprehensive test sections (Tests 15-18, updated Test 19)
+- ✅ MANUAL_TESTING.md Success Criteria updated with 11 Phase 5+ checklist items
+- ✅ README.md updated with Phase 5+ index generation features
+- ✅ All documentation now reflects Phase 5+ Enhanced Index Generation capabilities
+
+**Files Modified:**
+- [MANUAL_TESTING.md](../MANUAL_TESTING.md) - Added 5 new test sections + updated success criteria
+- [README.md](../README.md) - Updated library organization, structure diagrams, command reference
+
+---
+
+## [2025-11-29 (Continued)] Bug Fix: Channel Index Links
+
+**User Input:**
+```
+The link on Videos by Channel does not work
+```
+
+**Problem Identified:**
+- In `generate_channels_index()`, the relative link path to channel index.md was incorrect
+- Used `channel_folder.relative_to(self.library_root / 'videos')` which created a complex path
+- Should use simple `channel_folder.name` since we're already in videos/_index/
+
+**Fix Applied:**
+- Changed lines 419-427 in [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py)
+- From: `rel_channel_path = f"../{channel_folder.relative_to(self.library_root / 'videos')}/index.md"`
+- To: `rel_channel_path = f"../{channel_folder_name}/index.md"`
+- Added clear comments explaining the path structure
+
+**Result:**
+- ✅ Channel index links now work correctly
+- ✅ All 191 tests still passing
+- ✅ Relative path is simpler and more maintainable
+
+**Files Modified:**
+- [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py) - Fixed channel index link path (lines 419-427)
+
+---
+
+## [2025-11-29 (Continued)] Bug Fix: Video Links in Channels Index
+
+**User Input:**
+```
+In the generated channels.md I see a link
+
+### [Google Changed RAG Forever with NEW Gemini File Search Tool](../../matt-penny__UCZ2UamYbfBiUJN6zABwOQtg/qxNLLqwhpb8__google-changed-rag-forever-with-new-gemini-file-se/index.md)
+
+But I think there is one more ../ than needed. Can you double check
+```
+
+**Problem Identified:**
+- In `generate_channels_index()`, video links had TWO `../` when only ONE is needed
+- From `videos/_index/channels.md` to `videos/channel-folder/video-folder/index.md`
+- Should be `../channel-folder/video-folder/index.md`, not `../../...`
+- Same issue as before: using `relative_to()` instead of simple folder names
+
+**Fix Applied:**
+- Changed lines 440-447 in [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py)
+- From: `rel_path = f"../../{video.folder_path.relative_to(self.library_root / 'videos')}/index.md"`
+- To: `rel_path = f"../{channel_folder_name}/{video_folder_name}/index.md"`
+- Added detailed comments explaining the path structure
+
+**Result:**
+- ✅ Video links in channels.md now work correctly (one `../` instead of two)
+- ✅ All 191 tests still passing
+- ✅ Consistent fix pattern with the earlier channel index link fix
+
+**Files Modified:**
+- [src/resourcelibrarian/core/index_generator.py](src/resourcelibrarian/core/index_generator.py) - Fixed video link paths in channels index (lines 440-447)
+

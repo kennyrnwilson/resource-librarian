@@ -18,7 +18,11 @@ This guide provides step-by-step commands to manually test the Resource Libraria
 
 3. **Verify installation**:
    ```bash
+   # Test version command (new in Phase 5+)
    rl --version
+   rl -v
+
+   # Test help
    rl --help
    ```
 
@@ -323,7 +327,151 @@ rl video fetch "kJQP7kiw5Fk" \
 rl video list --library /tmp/test-library
 ```
 
-## Test 15: Help and Documentation
+## Test 15: Catalog Commands (Phase 5+)
+
+```bash
+# Rebuild catalog from filesystem
+rl catalog rebuild --library /tmp/test-library
+
+# Expected output:
+# - "Rebuilding catalog from filesystem..."
+# - "Found X books and Y videos"
+# - Success message
+
+# View library statistics
+rl catalog stats --library /tmp/test-library
+
+# Expected output:
+# - Total books count
+# - Total videos count
+# - Unique authors count
+# - Last updated timestamp
+```
+
+## Test 16: Index Files Verification (Phase 5+)
+
+```bash
+# Verify root README.md was created
+cat /tmp/test-library/README.md
+
+# Expected to see:
+# - 📚 KnowledgeHub Library header with emoji
+# - Library Statistics section
+# - Recent Additions section (5 most recent books)
+# - Quick Start guide
+# - Last updated timestamp
+
+# Verify books indices
+cat /tmp/test-library/books/_index/authors.md
+# Should show books grouped by author
+
+cat /tmp/test-library/books/_index/titles.md
+# Should show alphabetical list of books
+
+# Verify videos indices
+cat /tmp/test-library/videos/_index/channels.md
+# Should show:
+# - Videos grouped by channel
+# - Links to individual channel index files
+# - Channel YouTube URLs
+
+cat /tmp/test-library/videos/_index/titles.md
+# Should show alphabetical list of videos by title
+
+# Verify channel-level index files
+ls -la /tmp/test-library/videos/*/index.md
+# Should show index.md files in each channel folder
+
+cat /tmp/test-library/videos/rick-astley*/index.md
+# Expected:
+# - Channel name and description
+# - Channel YouTube URL
+# - List of all videos in that channel
+# - Navigation breadcrumbs
+
+# Verify category index
+cat /tmp/test-library/categories/index.md
+# Expected:
+# - List of all unique categories
+# - Links to category-specific indices
+# - Books and videos grouped by category
+
+# Verify book-level indices (if book has chapters/summaries)
+find /tmp/test-library/books -name "index.md" | head -5
+# Should show index.md files in book folders with:
+# - Book metadata
+# - Links to formats (EPUB, MARKDOWN, TXT)
+# - Links to summaries
+# - Chapter count
+# - Navigation breadcrumbs
+```
+
+## Test 17: Enhanced Video Get by Title (Phase 5+)
+
+```bash
+# Get video by exact title (case-insensitive)
+rl video get "never gonna give you up" \
+  --library /tmp/test-library
+
+# Expected output:
+# - Shows video metadata (title, channel, published date)
+# - Shows full transcript text
+
+# Get video by video ID (still works)
+rl video get "dQw4w9WgXcQ" \
+  --library /tmp/test-library
+
+# Expected: Same output as title-based lookup
+
+# Try partial title (should fail)
+rl video get "never gonna" \
+  --library /tmp/test-library
+
+# Expected: "Video not found" error (must be exact match)
+```
+
+## Test 18: Index Auto-Regeneration (Phase 5+)
+
+```bash
+# Check current root README timestamp
+grep "Last updated:" /tmp/test-library/README.md
+
+# Add a new book
+rl book add /tmp/sample-book.md \
+  --library /tmp/test-library \
+  --author "Jane Smith" \
+  --categories "Fiction" \
+  --tags "novel"
+
+# Verify root README was updated
+grep "Last updated:" /tmp/test-library/README.md
+# Timestamp should be newer
+
+# Verify Recent Additions section includes new book
+cat /tmp/test-library/README.md | grep -A 10 "Recent Additions"
+
+# Verify books indices were regenerated
+cat /tmp/test-library/books/_index/authors.md | grep "Jane Smith"
+cat /tmp/test-library/books/_index/titles.md | grep "Sample Book"
+
+# Add a new video
+rl video fetch "JGwWNGJdvx8" \
+  --library /tmp/test-library \
+  --categories "Music" \
+  --tags "popular"
+
+# Verify videos indices were regenerated
+cat /tmp/test-library/videos/_index/channels.md
+# Should include the new channel if different
+
+cat /tmp/test-library/videos/_index/titles.md
+# Should include the new video title
+
+# Verify channel index was created/updated
+ls -la /tmp/test-library/videos/*/index.md
+```
+
+## Test 19: Help and Documentation
 
 ```bash
 # Main help
@@ -342,9 +490,14 @@ rl book --help
 rl book add --help
 rl book list --help
 rl book get --help
+
+# Catalog subcommand help (Phase 5+)
+rl catalog --help
+rl catalog rebuild --help
+rl catalog stats --help
 ```
 
-## Test 16: Performance Test (Optional)
+## Test 20: Performance Test (Optional)
 
 ```bash
 # Time a video fetch operation
@@ -424,3 +577,16 @@ All tests should:
 - ✅ Update catalog.yaml
 - ✅ Display formatted output with proper colors/panels
 - ✅ Handle edge cases gracefully with clear error messages
+
+**Phase 5+ Additional Success Criteria:**
+- ✅ Root README.md generated with emojis, statistics, and Recent Additions
+- ✅ All index files have navigation breadcrumbs (⬅️ Back to Library Home)
+- ✅ Channel-level index.md files created in channel folders
+- ✅ Videos by title index generated (videos/_index/titles.md)
+- ✅ Category index generated with all categories (categories/index.md)
+- ✅ Book indices show format/summary/chapter counts
+- ✅ Video get command works with both ID and title
+- ✅ Catalog rebuild command reconstructs catalog from filesystem
+- ✅ Catalog stats command displays accurate counts
+- ✅ Indices auto-regenerate when books/videos are added
+- ✅ Version command displays correct version (--version / -v)

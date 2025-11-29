@@ -30,6 +30,11 @@ No database required - everything is organized in plain files with YAML metadata
 - **YAML manifests** - Structured metadata for each resource
 - **Searchable catalog** - YAML-based catalog for quick lookups
 - **Generated indices** - Beautiful Markdown index pages for navigation
+  - Root README with library statistics and recent additions
+  - Channel-level indices for video collections
+  - Videos by title index for alphabetical browsing
+  - Category indices for topic-based navigation
+  - Auto-regenerated when resources are added
 
 ### 🔍 Browse Your Library
 - List all books - Filter by author, category, or tags
@@ -104,19 +109,24 @@ rl init /path/to/my-library
 This creates:
 ```
 my-library/
+├── README.md                       # Root library index with stats
 ├── catalog.yaml                    # Library catalog (YAML format)
-├── _index/                         # Library-wide indices
-│   └── README.md                   # Main library index
+├── _index/                         # Library-wide navigation
 ├── books/
 │   └── _index/                     # Book indices
 │       ├── authors.md              # Books grouped by author
 │       └── titles.md               # Books alphabetically
-└── videos/
-    └── _index/                     # Video indices
-        └── channels.md             # Videos grouped by channel
+├── videos/
+│   └── _index/                     # Video indices
+│       ├── channels.md             # Videos grouped by channel
+│       └── titles.md               # Videos alphabetically
+└── categories/
+    └── index.md                    # All categories with links
 ```
 
 ### 2. Add Books
+
+#### Option A: Add a Single Book File
 
 ```bash
 # Add a single book (auto-detects metadata)
@@ -128,6 +138,54 @@ rl book add /path/to/book.pdf \
   --categories "Programming,Python" \
   --tags "beginner,tutorial"
 ```
+
+#### Option B: Import from a Structured Folder
+
+If you have books organized in folders with summaries:
+
+```bash
+# Import a book from a structured folder
+rl book import-folder /path/to/book-folder
+
+# Example folder structure:
+# my-book/
+# ├── my-book.epub                      # Main book file
+# ├── my-book.pdf                       # Alternative format
+# ├── my-book-summary-shortform.pdf     # Summary files
+# └── my-book-summary-claude.md
+
+# With categories and metadata
+rl book import-folder ./python-programming \
+  --categories "Programming,Python" \
+  --tags "beginner,tutorial"
+```
+
+The `import-folder` command will:
+- Auto-detect all book formats (PDF, EPUB, Markdown)
+- Auto-detect summary files (folder-name-summary-type.ext)
+- Convert summaries to Markdown if needed
+- Extract chapters from EPUB files
+- Auto-detect metadata from EPUB or text content
+```
+
+**Note:** Both `book add` and `book import-folder` create the same organized structure:
+
+```
+books/author-lastname-firstname/book-title/
+├── full-book-formats/              # All book formats
+│   ├── book-title.epub             # Original EPUB
+│   ├── book-title.pdf              # Original PDF
+│   ├── book-title.md               # Extracted Markdown
+│   └── chapters/                   # Extracted chapters (from EPUB)
+│       ├── 01-chapter-one.md
+│       ├── 02-chapter-two.md
+│       └── ...
+├── summaries/                      # Book summaries
+│   ├── shortform-summary.md
+│   └── claude-summary.md
+└── manifest.yaml                   # Book metadata
+```
+
 
 ### 3. Add YouTube Videos
 
@@ -259,27 +317,31 @@ graph TB
 
 ```
 my-library/
+├── README.md                      # Root library index with stats & recent additions
 ├── catalog.yaml                   # Searchable library catalog
 ├── _index/                        # Library-wide navigation
-│   └── README.md                  # Main index with stats
 ├── books/
-│   ├── _index/                   # Library-wide indices
-│   │   ├── authors.md
-│   │   └── titles.md
+│   ├── _index/                   # Book-wide indices
+│   │   ├── authors.md            # Books grouped by author
+│   │   └── titles.md             # Books alphabetically
 │   └── smith-john/               # Books organized by author
 │       └── python-programming/
 │           ├── manifest.yaml     # Book metadata
-│           ├── index.md          # Book navigation
+│           ├── index.md          # Book navigation page
 │           ├── *.epub, *.pdf, *.md  # Multiple formats
 │           ├── chapters/         # Individual chapters
 │           └── summaries/        # Book summaries
-└── videos/
-    ├── _index/
-    │   └── channels.md
-    └── tech-channel/             # Videos organized by channel
-        └── video-title/
-            ├── manifest.yaml
-            └── transcript.md
+├── videos/
+│   ├── _index/
+│   │   ├── channels.md           # Videos grouped by channel
+│   │   └── titles.md             # Videos alphabetically
+│   └── tech-channel__UCxxxxx/    # Videos organized by channel
+│       ├── index.md              # Channel navigation page
+│       └── video-title/
+│           ├── manifest.yaml     # Video metadata
+│           └── transcript.md     # Video transcript
+└── categories/
+    └── index.md                   # All categories with links
 ```
 
 ## Command Reference
@@ -288,12 +350,16 @@ Get help on any command:
 
 ```bash
 rl --help           # All commands
+rl --version        # Show version (also: -v)
 rl book --help      # Book commands
 rl video --help     # Video commands
 rl catalog --help   # Catalog commands
 ```
 
 ### Available Commands
+
+**General:**
+- `rl --version` (or `-v`) - Show version information
 
 **Library Management:**
 - `rl init <path>` - Initialize a new library

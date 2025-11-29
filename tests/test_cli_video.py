@@ -574,11 +574,20 @@ def test_video_fetch_successfully_adds_video_with_mocks(tmp_path):
         channel_folders = [d for d in videos_dir.iterdir() if d.name != "_index"]
         assert len(channel_folders) == 1
 
-        # Check that video folder was created
-        video_folders = list(channel_folders[0].iterdir())
+        # Check that video folder was created (channel folder should contain video folder + index.md)
+        channel_folder = channel_folders[0]
+        channel_contents = list(channel_folder.iterdir())
+        # Should have: 1 video folder + 1 index.md file
+        assert len(channel_contents) == 2
+
+        # Get the video folder (not the index.md file)
+        video_folders = [item for item in channel_contents if item.is_dir()]
         assert len(video_folders) == 1
 
         video_folder = video_folders[0]
+
+        # Verify channel index.md was created
+        assert (channel_folder / "index.md").exists()
         assert (video_folder / "source" / "transcript.txt").exists()
         assert (video_folder / "source" / "video.url").exists()
         assert (video_folder / "manifest.yaml").exists()

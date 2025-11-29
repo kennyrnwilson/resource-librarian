@@ -201,21 +201,47 @@ class BookIngestion:
 
         book_folder.mkdir(parents=True, exist_ok=True)
 
-        # Copy all source files
+        # Create subdirectories for organized structure
+        full_book_dir = book_folder / "full-book-formats"
+        full_book_dir.mkdir(exist_ok=True)
+
+        # Copy all source files to full-book-formats directory
         formats = {}
+        epub_file = None  # Track EPUB for chapter extraction
+
         for fp in file_paths:
             format_type = BookParser.detect_format(fp)
             if format_type in ["pdf", "epub"]:
                 filename = f"{slugify(title)}.{format_type}"
-                dest_path = book_folder / filename
+                dest_path = full_book_dir / filename
                 shutil.copy(fp, dest_path)
-                formats[format_type] = filename
+                formats[format_type] = f"full-book-formats/{filename}"
 
-        # Save extracted text as Markdown
+                # Track EPUB file for chapter extraction
+                if format_type == "epub":
+                    epub_file = fp
+
+        # Save extracted text as Markdown in full-book-formats
         md_filename = f"{slugify(title)}.md"
-        md_path = book_folder / md_filename
+        md_path = full_book_dir / md_filename
         md_path.write_text(text_content, encoding="utf-8")
-        formats["markdown"] = md_filename
+        formats["markdown"] = f"full-book-formats/{md_filename}"
+
+        # Extract chapters from EPUB if available
+        if epub_file:
+            try:
+                extractor = EpubChapterExtractor(epub_file)
+                chapters_dir = full_book_dir / "chapters"
+                saved_chapters = extractor.save_chapters(chapters_dir)
+
+                # Add chapters to formats
+                for chapter_num, chapter_title, chapter_path in saved_chapters:
+                    key = f"chapter-{chapter_num:02d}"
+                    relative_path = chapter_path.relative_to(book_folder)
+                    formats[key] = str(relative_path)
+            except ValueError:
+                # No chapters found, skip
+                pass
 
         # Create manifest
         manifest = BookManifest(
@@ -279,7 +305,9 @@ class BookIngestion:
             raise ValueError(f"No book format files found in {folder_path}")
 
         # Get preferred file for text extraction
-        extraction_file = scanner.get_preferred_format(scan_result["book_formats"], prefer=prefer_format)
+        extraction_file = scanner.get_preferred_format(
+            scan_result["book_formats"], prefer=prefer_format
+        )
         if not extraction_file:
             raise ValueError("No suitable format found for text extraction")
 
@@ -321,17 +349,23 @@ class BookIngestion:
             raise ValueError(f"Book already exists: {dest_folder_path}")
 
         book_folder.mkdir(parents=True, exist_ok=True)
+
+        # Create subdirectories for organized structure
         summaries_dir = book_folder / "summaries"
         summaries_dir.mkdir(exist_ok=True)
+        full_book_dir = book_folder / "full-book-formats"
+        full_book_dir.mkdir(exist_ok=True)
 
-        # Copy all book format files
+        # Copy all book format files to full-book-formats directory
         formats = {}
+        epub_file = None  # Track EPUB for chapter extraction
 
         for fmt, source_path in scan_result["book_formats"]:
             if fmt in ["md", "markdown"]:
                 dest_name = f"{slugify(title)}.md"
             elif fmt == "epub":
                 dest_name = f"{slugify(title)}.epub"
+                epub_file = source_path  # Track for chapter extraction
             elif fmt == "pdf":
                 dest_name = f"{slugify(title)}.pdf"
             elif fmt == "txt":
@@ -339,27 +373,21 @@ class BookIngestion:
             else:
                 continue
 
-            dest_path = book_folder / dest_name
+            dest_path = full_book_dir / dest_name
             shutil.copy2(source_path, dest_path)
-            formats[fmt] = dest_name
+            formats[fmt] = f"full-book-formats/{dest_name}"
 
         # Generate markdown if not present
         if "md" not in formats and "markdown" not in formats:
-            md_dest = book_folder / f"{slugify(title)}.md"
+            md_dest = full_book_dir / f"{slugify(title)}.md"
             md_dest.write_text(text_content, encoding="utf-8")
-            formats["markdown"] = f"{slugify(title)}.md"
+            formats["markdown"] = f"full-book-formats/{slugify(title)}.md"
 
         # Extract chapters from EPUB if available
-        epub_file = None
-        for fmt, path in scan_result["book_formats"]:
-            if fmt == "epub":
-                epub_file = path
-                break
-
         if epub_file:
             try:
                 extractor = EpubChapterExtractor(epub_file)
-                chapters_dir = book_folder / "chapters"
+                chapters_dir = full_book_dir / "chapters"
                 saved_chapters = extractor.save_chapters(chapters_dir)
 
                 # Add chapters to formats

@@ -199,12 +199,8 @@ def test_book_list_multiple_filters(tmp_path):
     library_path = tmp_path / "library"
     ResourceLibrary.initialize(library_path)
 
-    create_test_book(
-        library_path, "Python Guide", "John Smith", ["Programming"], ["beginner"]
-    )
-    create_test_book(
-        library_path, "Python Advanced", "John Smith", ["Programming"], ["advanced"]
-    )
+    create_test_book(library_path, "Python Guide", "John Smith", ["Programming"], ["beginner"])
+    create_test_book(library_path, "Python Advanced", "John Smith", ["Programming"], ["advanced"])
     create_test_book(library_path, "Data Science", "Jane Doe", ["Programming"], ["beginner"])
 
     result = runner.invoke(
@@ -245,9 +241,7 @@ def test_book_list_no_matches(tmp_path):
 
 def test_book_list_library_not_found(tmp_path):
     """Test 'rl book list' with non-existent library."""
-    result = runner.invoke(
-        app, ["book", "list", "--library", str(tmp_path / "nonexistent")]
-    )
+    result = runner.invoke(app, ["book", "list", "--library", str(tmp_path / "nonexistent")])
 
     assert result.exit_code == 1
     assert "Library Not Found" in result.stdout
@@ -305,9 +299,7 @@ def test_book_get_book_not_found(tmp_path):
     library_path = tmp_path / "library"
     ResourceLibrary.initialize(library_path)
 
-    result = runner.invoke(
-        app, ["book", "get", "NonExistent Book", "--library", str(library_path)]
-    )
+    result = runner.invoke(app, ["book", "get", "NonExistent Book", "--library", str(library_path)])
 
     assert result.exit_code == 1
     assert "Book Not Found" in result.stdout
@@ -322,9 +314,7 @@ def test_book_get_case_insensitive_title(tmp_path):
     create_test_book(library_path, "Python Guide", "John Smith", content=content)
 
     # Try with different case
-    result = runner.invoke(
-        app, ["book", "get", "python guide", "--library", str(library_path)]
-    )
+    result = runner.invoke(app, ["book", "get", "python guide", "--library", str(library_path)])
 
     assert result.exit_code == 0
     assert "Python Guide" in result.stdout
@@ -585,3 +575,138 @@ def test_book_add_author_name_parsing(tmp_path):
 
     # Should be in format: books/smith-john/test-book
     assert "smith-john" in folder_path.lower()
+
+
+def test_book_import_folder_basic(tmp_path):
+    """Test importing a book from a structured folder."""
+    # Initialize library
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create a test book folder with structured files
+    book_folder = tmp_path / "test-book"
+    book_folder.mkdir()
+
+    # Create book file (folder-name.md)
+    book_file = book_folder / "test-book.md"
+    book_file.write_text(
+        "# Test Book\n\n"
+        "by Test Author\n\n"
+        "This is a test book with some content.\n\n"
+        "## Chapter 1\n\n"
+        "Chapter content here."
+    )
+
+    # Create a summary file (folder-name-summary-type.md)
+    summary_file = book_folder / "test-book-summary-shortform.md"
+    summary_file.write_text("# Summary\n\nThis is a short summary of the test book.")
+
+    # Import the folder
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "import-folder",
+            str(book_folder),
+            "--library",
+            str(library_path),
+            "--title",
+            "Test Book",
+            "--author",
+            "Test Author",
+            "--categories",
+            "Fiction,Drama",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Book imported successfully" in result.stdout
+
+    # Verify the book was added to catalog
+    catalog_path = library_path / "catalog.yaml"
+    assert catalog_path.exists()
+
+    catalog_data = yaml.safe_load(catalog_path.read_text())
+    assert len(catalog_data["books"]) == 1
+
+    book_data = catalog_data["books"][0]
+    assert book_data["title"] == "Test Book"
+    assert book_data["author"] == "Test Author"
+    assert "Fiction" in book_data["categories"]
+    assert "Drama" in book_data["categories"]
+
+    # Verify book folder was created
+    book_path = library_path / book_data["folder_path"]
+    assert book_path.exists()
+
+    # Verify full-book-formats directory was created
+    full_book_dir = book_path / "full-book-formats"
+    assert full_book_dir.exists()
+
+    # Verify markdown format was created in full-book-formats
+    md_file = full_book_dir / "test-book.md"
+    assert md_file.exists()
+
+    # Verify summary was imported
+    summaries_dir = book_path / "summaries"
+    assert summaries_dir.exists()
+    summary_md = summaries_dir / "shortform-summary.md"
+    assert summary_md.exists()
+
+    # Verify manifest
+    manifest_path = book_path / "manifest.yaml"
+    assert manifest_path.exists()
+    manifest_data = yaml.safe_load(manifest_path.read_text())
+    assert "summaries" in manifest_data
+    assert "shortform" in manifest_data["summaries"]
+
+
+def test_book_import_folder_not_found(tmp_path):
+    """Test import-folder with non-existent folder."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "import-folder",
+            str(tmp_path / "nonexistent"),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Folder not found" in result.stdout
+
+
+def test_book_import_folder_no_book_files(tmp_path):
+    """Test import-folder with folder containing no valid book files."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create empty folder
+    book_folder = tmp_path / "empty-folder"
+    book_folder.mkdir()
+
+    # Create a random file (not a book file)
+    (book_folder / "random.txt").write_text("Random content")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "import-folder",
+            str(book_folder),
+            "--library",
+            str(library_path),
+            "--title",
+            "Test",
+            "--author",
+            "Test",
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "No book format files found" in result.stdout
