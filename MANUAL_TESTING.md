@@ -219,7 +219,53 @@ rl book add /tmp/sample-book.md \
 # - Shows location in library
 ```
 
-## Test 9: Book List
+## Test 9: Book Import from Folder
+
+```bash
+# Create a structured book folder
+mkdir -p /tmp/structured-book
+cat > /tmp/structured-book/structured-book.md << 'EOF'
+# Structured Book
+
+by Test Author
+
+This is a book imported from a structured folder.
+
+## Chapter 1
+
+Content for chapter one.
+EOF
+
+# Create a summary file
+cat > /tmp/structured-book/structured-book-summary-shortform.md << 'EOF'
+# Summary
+
+This is a short summary of the structured book.
+EOF
+
+# Import the book from folder
+rl book import-folder /tmp/structured-book \
+  --library /tmp/test-library \
+  --categories "Testing,Import"
+
+# Expected output:
+# - Success message
+# - Shows detected formats
+# - Shows detected summaries
+# - Shows book location
+
+# Verify the structure was created correctly
+ls -la /tmp/test-library/books/author-test/structured-book/
+# Should show: full-book-formats/, summaries/, manifest.yaml
+
+ls -la /tmp/test-library/books/author-test/structured-book/full-book-formats/
+# Should show: structured-book.md
+
+ls -la /tmp/test-library/books/author-test/structured-book/summaries/
+# Should show: shortform-summary.md
+```
+
+## Test 10: Book List
 
 ```bash
 # List all books
@@ -235,7 +281,7 @@ rl book list --library /tmp/test-library --category "Tutorial"
 rl book list --library /tmp/test-library --tag "sample"
 ```
 
-## Test 10: Book Get
+## Test 11: Book Get
 
 ```bash
 # Get book content

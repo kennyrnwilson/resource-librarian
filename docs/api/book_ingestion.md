@@ -67,11 +67,13 @@ book = ingestion.add_book(
 1. Validates files exist
 2. Selects preferred format for text extraction
 3. Parses content and extracts metadata
-4. Creates folder: `lastname-firstname/book-title/`
-5. Copies source files
+4. Creates folder structure: `lastname-firstname/book-title/`
+   - `full-book-formats/` - All book file formats
+   - `full-book-formats/chapters/` - Individual chapters (from EPUB)
+5. Copies source files to `full-book-formats/`
 6. Generates Markdown version
-7. Extracts EPUB chapters (if applicable)
-8. Creates `manifest.yaml`
+7. Extracts EPUB chapters to `full-book-formats/chapters/` (if applicable)
+8. Creates `manifest.yaml` with format paths
 9. Updates library catalog
 
 ---
@@ -117,11 +119,14 @@ book = ingestion.add_book_from_folder(
 1. Scans folder for book formats and summaries
 2. Extracts text from preferred format
 3. Extracts metadata from EPUB or text
-4. Creates organized structure in library
-5. Copies all book formats
-6. Converts summaries to Markdown
-7. Extracts EPUB chapters
-8. Creates manifest and updates catalog
+4. Creates organized structure in library:
+   - `full-book-formats/` - All book file formats
+   - `full-book-formats/chapters/` - Individual chapters (from EPUB)
+   - `summaries/` - Converted summary files
+5. Copies all book formats to `full-book-formats/`
+6. Converts summaries to Markdown in `summaries/`
+7. Extracts EPUB chapters to `full-book-formats/chapters/`
+8. Creates manifest with all format paths and updates catalog
 
 ---
 
