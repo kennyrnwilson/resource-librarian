@@ -187,7 +187,10 @@ The previous session accomplished complete implementation of Phase 0:
 
 ## [2025-11-28] Phase 5 Complete - Full Cataloging System
 
-**User:** Continuation from previous session - "save where we are"
+**User Input:**
+```
+save where we are
+```
 
 **Context:**
 Previous session implemented full cataloging system but ran out of context before session state could be saved.
@@ -236,5 +239,50 @@ Previous session implemented full cataloging system but ran out of context befor
 - Relative links in markdown indices for easy navigation
 
 **Result:** Session state successfully saved. Phase 5 is complete and documented.
+
+---
+
+## [2025-11-28 14:30] Update Global CLAUDE.MD Template
+
+**User Input:**
+```
+Can we update the user level CLAUDE.MD so that for each stored session every user input such as this is stored in markdown like
+
+```
+Can we update the user level CLAUDE.MD so that for each stored session every user input such as this is stored in markdown like
+```
+```
+
+**Actions Taken:**
+- Updated `/home/kenne/.claude/CLAUDE.md` to include instructions for storing user input in code blocks
+- Modified the `claude-prompts.md` template to show user input in markdown code blocks
+- Updated instruction #2 to emphasize storing exact user input in triple backticks
+- Applied new format retroactively to current session prompts in project's `claude-prompts.md`
+
+**Result:** Global CLAUDE.MD template updated. All future sessions will store user input in markdown code blocks for better readability and exact preservation of user prompts.
+
+---
+
+## [2025-11-28 14:35] Reorganize Session Files into ai_docs/
+
+**User Input:**
+```
+Can you update the user level CLAUDE.md so that it always stores the session state and prompts in each project in project folder called ai_docs. Also any project documentation by default should be stored in a docs folder in the project
+```
+
+**Actions Taken:**
+- Updated `/home/kenne/.claude/CLAUDE.md` to use `ai_docs/` folder for session tracking
+- Added instruction #5 for project documentation in `docs/` folder
+- Created `ai_docs/` folder in project root
+- Moved `claude-session-state.md` and `claude-prompts.md` into `ai_docs/`
+- Updated `.gitignore` to reference `ai_docs/` instead of individual files
+- Updated file location documentation in global CLAUDE.MD
+
+**New Structure:**
+- `ai_docs/claude-session-state.md` - AI session state and progress tracking
+- `ai_docs/claude-prompts.md` - AI session prompt history
+- `docs/` - Project documentation (API, architecture, setup guides, etc.)
+
+**Result:** Session tracking files now organized in `ai_docs/` folder, separate from project documentation in `docs/`. All future sessions will follow this structure automatically.
 
 ---

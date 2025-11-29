@@ -15,6 +15,17 @@ from rich.table import Table
 
 from resourcelibrarian.library import ResourceLibrary
 
+# Version
+__version__ = "0.1.0"
+
+
+def version_callback(value: bool):
+    """Print version and exit."""
+    if value:
+        typer.echo(f"Resource Librarian (rl) version {__version__}")
+        raise typer.Exit()
+
+
 app = typer.Typer(
     name="rl",
     help="Resource Librarian - Manage your digital library of books and YouTube video transcripts",
@@ -34,6 +45,21 @@ catalog_app = typer.Typer(help="Manage library catalog and indices")
 app.add_typer(catalog_app, name="catalog")
 
 console = Console()
+
+
+@app.callback()
+def main(
+    version: Optional[bool] = typer.Option(
+        None,
+        "--version",
+        "-v",
+        callback=version_callback,
+        is_eager=True,
+        help="Show version and exit",
+    ),
+):
+    """Resource Librarian - Manage your digital library."""
+    pass
 
 
 @app.command()
@@ -873,7 +899,7 @@ def video_list(
 
 @video_app.command("get")
 def video_get(
-    video_id: str = typer.Argument(..., help="YouTube video ID to retrieve"),
+    identifier: str = typer.Argument(..., help="YouTube video ID or title to retrieve"),
     library_path: str = typer.Option(
         ".",
         "--library",
@@ -887,10 +913,11 @@ def video_get(
         help="Output file path. If not specified, prints to stdout",
     ),
 ):
-    """Retrieve video transcript by YouTube video ID.
+    """Retrieve video transcript by YouTube video ID or title.
 
     Examples:
         rl video get dQw4w9WgXcQ
+        rl video get "My Video Title"
         rl video get dQw4w9WgXcQ --output transcript.txt
     """
     try:
@@ -913,13 +940,17 @@ def video_get(
         # Load catalog
         catalog = library.load_catalog()
 
-        # Find video
-        video = catalog.find_video(video_id)
+        # Find video by ID first, then by title
+        video = catalog.find_video(identifier)
+        if not video:
+            # Try finding by title
+            video = catalog.find_video_by_title(identifier)
+
         if not video:
             console.print()
             console.print(
                 Panel.fit(
-                    f"[red]✗[/red] Video not found: {video_id}\n\n"
+                    f"[red]✗[/red] Video not found: {identifier}\n\n"
                     f"[dim]Try:[/dim]\n"
                     f"  [cyan]rl video list[/cyan] - to see all videos\n"
                     f"  [cyan]rl video list --title \"search term\"[/cyan] - to search for videos",

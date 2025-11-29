@@ -82,6 +82,21 @@ class LibraryCatalog(BaseModel):
                 return video
         return None
 
+    def find_video_by_title(self, title: str) -> Optional[Video]:
+        """Find a video by exact title match.
+
+        Args:
+            title: Video title (case-insensitive)
+
+        Returns:
+            Video instance if found, None otherwise
+        """
+        title_lower = title.lower()
+        for video in self.videos:
+            if video.title.lower() == title_lower:
+                return video
+        return None
+
     def search_books(
         self,
         author: Optional[str] = None,

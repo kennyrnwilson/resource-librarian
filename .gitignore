@@ -45,6 +45,5 @@ Thumbs.db
 # Project specific
 *.log
 
-# Session state files (optional - uncomment if you don't want to track these)
-# claude-session-state.md
-# claude-prompts.md
+# AI session tracking (optional - uncomment if you don't want to track these)
+# ai_docs/
