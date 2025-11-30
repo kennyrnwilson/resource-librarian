@@ -4,10 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "resource-librarian"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library to help create, maintain and index a digital library of electronic book, youtube transcripts and summaries of them"
-readme = "README.md"
+readme = "PYPI_README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
 authors = [
     {name = "Kenny Wilson"}
 ]

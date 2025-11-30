@@ -393,7 +393,9 @@ See [RELEASE.md](RELEASE.md) for detailed instructions on:
 
 ## License
 
-TBD
+MIT License - see [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2024 Kenny Wilson
 
 ## Author
 
