@@ -313,7 +313,7 @@ While the core functionality is complete, future enhancements could include:
    - Caching for catalog operations
    - Incremental indexing
 
-## Support and Contribution
+## Support
 
 This is a personal project for managing digital knowledge resources. For issues or questions:
 - Review [MANUAL_TESTING.md](MANUAL_TESTING.md) for common issues

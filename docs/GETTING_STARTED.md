@@ -1,6 +1,6 @@
 # Getting Started with Resource Librarian Development
 
-This guide will help you set up your development environment and make your first contribution to Resource Librarian.
+This guide will help you set up your development environment for Resource Librarian.
 
 ---
 
@@ -31,7 +31,7 @@ If you need to install Python 3.11+:
 ### 1. Clone the Repository
 
 ```bash
-# Clone via SSH (recommended for contributors)
+# Clone via SSH
 git clone git@github.com:kennyrnwilson/resource-librarian.git
 cd resource-librarian
 
@@ -230,7 +230,7 @@ pytest tests/
 
 ## Making Your First Change
 
-Let's walk through a simple contribution:
+Let's walk through a simple example:
 
 ### Example: Add a New CLI Option
 
@@ -433,8 +433,8 @@ Now that you're set up:
 1. **Read the [Architecture](ARCHITECTURE.md)** to understand the system design
 2. **Read the [Dependencies](DEPENDENCIES.md)** to understand the libraries we use
 3. **Explore the codebase** - Read through key modules
-4. **Pick an issue** from GitHub and start contributing!
+4. **Start building** - Try adding features or fixing bugs
 
 ---
 
-**Ready to contribute?** Start by exploring the codebase and picking an issue from [GitHub Issues](https://github.com/kennyrnwilson/resource-librarian/issues).
+**Happy coding!** You're all set to work with Resource Librarian.

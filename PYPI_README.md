@@ -196,15 +196,6 @@ This converts your library to the new format with `catalog.yaml`.
 - **Parsing**: [PyMuPDF](https://pymupdf.readthedocs.io/) for PDFs, [ebooklib](https://github.com/aerkalov/ebooklib) for EPUB
 - **YouTube**: [google-api-python-client](https://github.com/googleapis/google-api-python-client) for metadata, [youtube-transcript-api](https://github.com/jdepoix/youtube-transcript-api) for transcripts
 
-## Contributing
-
-Contributions are welcome! Please visit our [GitHub repository](https://github.com/kennyrnwilson/resource-librarian) to:
-
-- Report bugs
-- Request features
-- Submit pull requests
-- Read contribution guidelines
-
 ## License
 
 MIT License - see [LICENSE](https://github.com/kennyrnwilson/resource-librarian/blob/main/LICENSE) for details.

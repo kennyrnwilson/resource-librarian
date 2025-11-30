@@ -84,9 +84,9 @@ Development resources:
 
 → Read [Catalog System](architecture/catalog-system.md) and [Core Module](modules/core.md)
 
-### "I want to contribute code"
+### "I want to work with the code"
 
-→ Read [Getting Started](GETTING_STARTED.md) and [Testing](TESTING.md)
+→ Read [Getting Started](GETTING_STARTED.md) for development setup
 
 ---
 
@@ -160,7 +160,7 @@ These indices are regenerated when resources are added or the catalog is rebuilt
 
 ## 📝 Documentation Guidelines
 
-When contributing to documentation:
+Documentation style:
 
 1. **Be clear and concise** - No fluff, get to the point
 2. **Include code examples** - Show, don't just tell
