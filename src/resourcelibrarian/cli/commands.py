@@ -1437,9 +1437,7 @@ def catalog_stats(
 
 @catalog_app.command("migrate")
 def catalog_migrate(
-    library: str = typer.Option(
-        ".", "--library", "-l", help="Path to the library (old format)"
-    ),
+    library: str = typer.Option(".", "--library", "-l", help="Path to the library (old format)"),
 ):
     """Migrate an old library (.knowledgehub) to new format (catalog.yaml).
 
@@ -1525,6 +1523,7 @@ def catalog_migrate(
         # Generate indices
         console.print("[cyan]→[/cyan] Generating indices...")
         from resourcelibrarian.core.index_generator import IndexGenerator
+
         index_gen = IndexGenerator(lib_path)
         index_gen.generate_all_indices(catalog)
 
