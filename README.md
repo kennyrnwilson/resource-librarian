@@ -376,6 +376,21 @@ The hook runs:
 
 If any check fails, the push is aborted with clear error messages.
 
+### Creating Releases
+
+The project uses GitHub Releases to automatically publish to PyPI:
+
+1. **Update version** in `pyproject.toml`
+2. **Create a git tag**: `git tag -a v0.2.0 -m "Release v0.2.0"`
+3. **Push the tag**: `git push origin v0.2.0`
+4. **Create GitHub Release** (triggers auto-publish to PyPI)
+
+See [RELEASE.md](RELEASE.md) for detailed instructions on:
+- Setting up PyPI trusted publishing
+- Creating releases via GitHub UI or CLI
+- Version numbering guidelines
+- Testing before release
+
 ## License
 
 TBD
