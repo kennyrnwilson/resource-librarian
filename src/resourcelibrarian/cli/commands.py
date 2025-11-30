@@ -1433,3 +1433,139 @@ def catalog_stats(
         )
         console.print()
         raise typer.Exit(1)
+
+
+@catalog_app.command("migrate")
+def catalog_migrate(
+    library: str = typer.Option(
+        ".", "--library", "-l", help="Path to the library (old format)"
+    ),
+):
+    """Migrate an old library (.knowledgehub) to new format (catalog.yaml).
+
+    This rebuilds the catalog from your existing books/ and videos/ directories.
+    Your content is preserved - only the catalog format changes.
+    """
+    import shutil
+
+    from resourcelibrarian.core.catalog_manager import CatalogManager
+
+    console.print()
+    console.print("[bold cyan]Migrating Library to New Format[/bold cyan]")
+    console.print()
+
+    try:
+        lib_path = Path(library).resolve()
+
+        # Check if it's an old-style library
+        old_metadata_dir = lib_path / ".knowledgehub"
+        
+        if not old_metadata_dir.exists():
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] No old-style library found at: {lib_path}\n\n"
+                    f"Looking for: {old_metadata_dir}\n\n"
+                    f"This command is for migrating libraries with .knowledgehub/ directory.\n"
+                    f"If you have a new-format library, use: rl catalog rebuild",
+                    title="[bold red]Error[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Check if books and videos directories exist
+        books_dir = lib_path / "books"
+        videos_dir = lib_path / "videos"
+        
+        if not (books_dir.exists() or videos_dir.exists()):
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] No books/ or videos/ directories found\n\n"
+                    f"Cannot find content to migrate.",
+                    title="[bold red]Error[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Check if already migrated
+        new_catalog_path = lib_path / "catalog.yaml"
+        if new_catalog_path.exists():
+            console.print(
+                Panel.fit(
+                    f"[yellow]⚠[/yellow]  Library already has catalog.yaml\n\n"
+                    f"The library appears to already be migrated.\n"
+                    f"Use: rl catalog rebuild to regenerate the catalog.",
+                    title="[bold yellow]Warning[/bold yellow]",
+                    border_style="yellow",
+                )
+            )
+            console.print()
+            raise typer.Exit(0)
+
+        # Backup old metadata directory
+        backup_dir = lib_path / ".knowledgehub.backup"
+        console.print(f"[cyan]→[/cyan] Backing up .knowledgehub/ to {backup_dir.name}/...")
+        if backup_dir.exists():
+            shutil.rmtree(backup_dir)
+        shutil.copytree(old_metadata_dir, backup_dir)
+
+        # Rebuild catalog from filesystem
+        console.print("[cyan]→[/cyan] Scanning books and videos...")
+        catalog_mgr = CatalogManager(lib_path)
+        catalog = catalog_mgr.rebuild_catalog()
+        
+        # Create library index directory if it doesn't exist
+        index_dir = lib_path / "_index"
+        if not index_dir.exists():
+            index_dir.mkdir()
+        
+        # Generate indices
+        console.print("[cyan]→[/cyan] Generating indices...")
+        from resourcelibrarian.core.index_generator import IndexGenerator
+        index_gen = IndexGenerator(lib_path)
+        index_gen.generate_all_indices(catalog)
+
+        # Get stats
+        stats = catalog.get_stats()
+
+        # Success message
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[green]✓[/green] Migration successful!\n\n"
+                f"[cyan]What was found:[/cyan]\n"
+                f"  • Books: {stats['total_books']}\n"
+                f"  • Videos: {stats['total_videos']}\n"
+                f"  • Categories: {stats['unique_categories']}\n\n"
+                f"[cyan]What changed:[/cyan]\n"
+                f"  • Created: catalog.yaml (at library root)\n"
+                f"  • Created: _index/ (navigation indices)\n"
+                f"  • Backed up: .knowledgehub/ → .knowledgehub.backup/\n"
+                f"  • Format: JSON → YAML\n\n"
+                f"[cyan]Next steps:[/cyan]\n"
+                f"  • Your library is ready to use with the new version!\n"
+                f"  • You can safely delete .knowledgehub.backup/ if everything works\n"
+                f"  • All your books and videos are preserved!",
+                title="[bold green]Migration Complete[/bold green]",
+                border_style="green",
+            )
+        )
+        console.print()
+
+    except typer.Exit:
+        raise
+    except Exception as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] Migration failed:\n\n{str(e)}\n\n"
+                f"Your original library is unchanged.",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
