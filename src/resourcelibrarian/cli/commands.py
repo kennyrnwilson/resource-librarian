@@ -1459,7 +1459,7 @@ def catalog_migrate(
 
         # Check if it's an old-style library
         old_metadata_dir = lib_path / ".knowledgehub"
-        
+
         if not old_metadata_dir.exists():
             console.print(
                 Panel.fit(
@@ -1477,12 +1477,12 @@ def catalog_migrate(
         # Check if books and videos directories exist
         books_dir = lib_path / "books"
         videos_dir = lib_path / "videos"
-        
+
         if not (books_dir.exists() or videos_dir.exists()):
             console.print(
                 Panel.fit(
-                    f"[red]✗[/red] No books/ or videos/ directories found\n\n"
-                    f"Cannot find content to migrate.",
+                    "[red]✗[/red] No books/ or videos/ directories found\n\n"
+                    "Cannot find content to migrate.",
                     title="[bold red]Error[/bold red]",
                     border_style="red",
                 )
@@ -1495,9 +1495,9 @@ def catalog_migrate(
         if new_catalog_path.exists():
             console.print(
                 Panel.fit(
-                    f"[yellow]⚠[/yellow]  Library already has catalog.yaml\n\n"
-                    f"The library appears to already be migrated.\n"
-                    f"Use: rl catalog rebuild to regenerate the catalog.",
+                    "[yellow]⚠[/yellow]  Library already has catalog.yaml\n\n"
+                    "The library appears to already be migrated.\n"
+                    "Use: rl catalog rebuild to regenerate the catalog.",
                     title="[bold yellow]Warning[/bold yellow]",
                     border_style="yellow",
                 )
@@ -1516,12 +1516,12 @@ def catalog_migrate(
         console.print("[cyan]→[/cyan] Scanning books and videos...")
         catalog_mgr = CatalogManager(lib_path)
         catalog = catalog_mgr.rebuild_catalog()
-        
+
         # Create library index directory if it doesn't exist
         index_dir = lib_path / "_index"
         if not index_dir.exists():
             index_dir.mkdir()
-        
+
         # Generate indices
         console.print("[cyan]→[/cyan] Generating indices...")
         from resourcelibrarian.core.index_generator import IndexGenerator
