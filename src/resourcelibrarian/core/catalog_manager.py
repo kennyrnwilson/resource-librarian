@@ -188,14 +188,13 @@ class CatalogManager:
         catalog = self.load_catalog()
 
         # Check if book already exists (by folder path)
-        existing = next(
-            (b for b in catalog.books if b.folder_path == book.folder_path),
-            None
-        )
+        existing = next((b for b in catalog.books if b.folder_path == book.folder_path), None)
 
         if existing:
             # Update existing book
-            catalog.books = [b if b.folder_path != book.folder_path else book for b in catalog.books]
+            catalog.books = [
+                b if b.folder_path != book.folder_path else book for b in catalog.books
+            ]
         else:
             # Add new book
             catalog.books.append(book)
@@ -211,10 +210,7 @@ class CatalogManager:
         catalog = self.load_catalog()
 
         # Check if video already exists (by video_id)
-        existing = next(
-            (v for v in catalog.videos if v.video_id == video.video_id),
-            None
-        )
+        existing = next((v for v in catalog.videos if v.video_id == video.video_id), None)
 
         if existing:
             # Update existing video

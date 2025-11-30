@@ -305,16 +305,9 @@ def extract_metadata_from_text(text: str) -> dict[str, str | None]:
             r"^acknowledgments",
         ]
 
-        should_skip = any(
-            re.match(pattern, line, re.IGNORECASE) for pattern in skip_patterns
-        )
+        should_skip = any(re.match(pattern, line, re.IGNORECASE) for pattern in skip_patterns)
 
-        if (
-            not metadata["title"]
-            and not should_skip
-            and len(line) > 5
-            and len(line) < 100
-        ):
+        if not metadata["title"] and not should_skip and len(line) > 5 and len(line) < 100:
             # Remove markdown header symbols
             title = re.sub(r"^#+\s*", "", line)
             # Only use if it looks like a title (has capital letters)

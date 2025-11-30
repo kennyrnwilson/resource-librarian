@@ -339,10 +339,42 @@ rl catalog --help   # Catalog commands
 - **[Library Structure](#library-structure)** - How your library is organized
 
 ### For Developers
-- **[Development Guide](docs/DEVELOPMENT.md)** - Setup, testing, and contributing
-- **[Implementation Plan](docs/IMPLEMENTATION_PLAN.md)** - Project roadmap and phases
-- **[CLI Commands Analysis](docs/CLI_COMMANDS_ANALYSIS.md)** - Complete command specifications
-- **[Session Recovery Guide](docs/SESSION_RECOVERY.md)** - Development session continuity
+- **[Getting Started](docs/GETTING_STARTED.md)** - Developer onboarding and setup
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and structure
+- **[Dependencies](docs/DEPENDENCIES.md)** - Package choices and rationale
+- **[Parsing](docs/PARSING.md)** - Document parsing implementation
+
+## Development Workflow
+
+### Running Tests and Checks Locally
+
+Before pushing code, run all CI/CD checks locally:
+
+```bash
+# Quick check script (recommended)
+./check.sh
+
+# Or manually:
+source venv/bin/activate
+ruff check .                          # Linting
+ruff format --check .                 # Formatting check
+pytest --cov=src/resourcelibrarian   # Tests with coverage
+```
+
+### Pre-Push Hook
+
+The project includes a **pre-push Git hook** that automatically runs all checks before pushing to remote. This prevents failed CI/CD builds:
+
+- ✅ Automatically runs on `git push`
+- ✅ Blocks push if linting, formatting, or tests fail
+- ✅ Located at `.git/hooks/pre-push`
+
+The hook runs:
+1. Ruff linting (`ruff check .`)
+2. Ruff formatting check (`ruff format --check .`)
+3. Full test suite with coverage (`pytest`)
+
+If any check fails, the push is aborted with clear error messages.
 
 ## License
 

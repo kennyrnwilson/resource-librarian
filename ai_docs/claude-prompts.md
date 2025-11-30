@@ -4,6 +4,134 @@ This file logs all prompts and key responses for this project.
 
 ---
 
+## [2025-11-29 Documentation Session] Developer Documentation
+
+**User Prompt 1:** "I feel something went wrong here in the README.md" (with screenshot showing malformed folder structure)
+
+**Actions Taken:**
+- Identified two issues in README.md:
+  - Line 173: Added `text` language specifier to code block
+  - Lines 264-314: Removed outdated mermaid diagram
+  - Updated folder structure to show `full-book-formats/` directory
+- Fixed rendering issues in markdown
+
+**Result:** README.md folder structure now renders correctly
+
+---
+
+**User Prompt 2:** "Lets now work on the docs folder. I would like us to do significant work on this folder. We want this to be a well structured set of documents that give developer level detail. We should 1. Include the architecture and structure of the code. Use mermaid where appropriate 2. Summary of Python packages we use and why we chose them. 3. Section on a) How we parse epub, pdf etc. Can we come up with a plan for this. I think we can safely remove the current content in this folder and start from scratch"
+
+**Actions Taken:**
+- Created DOCUMENTATION_PLAN.md outlining 6-phase implementation
+- Proposed structure:
+  - README.md - Documentation hub
+  - GETTING_STARTED.md - Developer onboarding
+  - DEPENDENCIES.md - Package rationale
+  - ARCHITECTURE.md - System architecture
+  - PARSING.md - Document parsing details
+  - Module docs, integration docs, testing docs
+
+**Result:** Comprehensive documentation plan created
+
+---
+
+**User Prompt 3:** "1. Remove 2. Lets start with Phase 1 to start with"
+
+**Actions Taken:**
+- Removed all existing docs
+- Created Phase 1 Foundation Docs:
+  - docs/README.md (5.9 KB) - Documentation hub with navigation
+  - docs/GETTING_STARTED.md (12 KB) - Developer onboarding guide
+  - docs/DEPENDENCIES.md (16 KB) - All 12 packages with rationale
+
+**Result:** Phase 1 documentation complete
+
+---
+
+**User Prompt 4:** "Remove any mention of contributing."
+
+**Actions Taken:**
+- Removed all references to CONTRIBUTING.md from:
+  - docs/README.md - Changed section title, removed links
+  - docs/GETTING_STARTED.md - Removed final reference
+
+**Result:** All CONTRIBUTING.md references removed
+
+---
+
+**User Prompt 5:** "lets continue"
+
+**Actions Taken:**
+- Created Phase 2 Architecture & Parsing Docs:
+  - docs/ARCHITECTURE.md (19 KB) - Comprehensive architecture with mermaid diagrams
+  - docs/PARSING.md (17 KB) - Detailed parsing documentation
+
+**Result:** Phase 2 documentation complete
+
+---
+
+**User Prompt 6:** "The high level architecture diagram is a bit messy. Could have have a simpler one. Maybe just the layers without the types inside them"
+
+**Actions Taken:**
+- Simplified high-level architecture diagram in ARCHITECTURE.md
+- Removed internal component details from each layer
+- Kept only 5 layers: CLI, Core, Sources, Models, Storage
+- Maintained clear flow between layers
+
+**Result:** Clean, simple architecture diagram showing just layers
+
+---
+
+**User Prompt 7:** "The colours are contrast are bad in dark theme" (with screenshot)
+
+**Actions Taken:**
+- Updated mermaid diagram colors to work in dark theme:
+  - CLI Layer: Blue (#0066cc) with white text
+  - Core Layer: Orange (#cc6600) with white text
+  - Sources Layer: Magenta (#cc0066) with white text
+  - Models Layer: Green (#009966) with white text
+  - Storage Layer: Purple (#6600cc) with white text
+- Added dark stroke colors and white text for all layers
+
+**Result:** Diagram now has excellent contrast in dark theme
+
+---
+
+**User Prompt 8:** "For 1. CLI Layer (cli/) can you add links to the online docs for Typer and Rich"
+
+**Actions Taken:**
+- Added links to Technologies section in CLI Layer:
+  - Typer → https://typer.tiangolo.com/
+  - Rich → https://rich.readthedocs.io/
+
+**Result:** Official documentation links added for CLI layer technologies
+
+---
+
+**User Prompt 9:** "For 3. Sources Layer (sources/) can you list any important packages uses with links to their documentation"
+
+**Actions Taken:**
+- Added Technologies section to Sources Layer with links:
+  - PyMuPDF → https://pymupdf.readthedocs.io/
+  - ebooklib → https://github.com/aerkalov/ebooklib
+  - BeautifulSoup4 → https://www.crummy.com/software/BeautifulSoup/bs4/doc/
+  - google-api-python-client → https://github.com/googleapis/google-api-python-client
+  - youtube-transcript-api → https://github.com/jdepoix/youtube-transcript-api
+
+**Result:** All major packages documented with links in Sources Layer
+
+---
+
+**User Prompt 10:** "Save all session state"
+
+**Actions Taken:**
+- Updated ai_docs/claude-session-state.md with documentation session accomplishments
+- Updated ai_docs/claude-prompts.md with all user prompts and actions from this session
+
+**Result:** Session state saved to ai_docs/ folder
+
+---
+
 ## [2025-11-17 Session Recovery] Session Resumed
 
 **User:** Continued from previous session (context overflow recovery)

@@ -41,7 +41,7 @@ class YouTubeTranscript:
                 transcript_data = transcript.fetch()
                 text = YouTubeTranscript._format_transcript(transcript_data)
                 return text, language
-            except:
+            except Exception:
                 pass
 
             # Try English as fallback
@@ -51,7 +51,7 @@ class YouTubeTranscript:
                     transcript_data = transcript.fetch()
                     text = YouTubeTranscript._format_transcript(transcript_data)
                     return text, "en"
-                except:
+                except Exception:
                     pass
 
             # Try any available transcript (including generated)
@@ -60,7 +60,7 @@ class YouTubeTranscript:
                 transcript_data = transcript.fetch()
                 text = YouTubeTranscript._format_transcript(transcript_data)
                 return text, "en (generated)"
-            except:
+            except Exception:
                 pass
 
             # Last resort: get first available
@@ -69,7 +69,7 @@ class YouTubeTranscript:
                     transcript_data = transcript.fetch()
                     text = YouTubeTranscript._format_transcript(transcript_data)
                     return text, transcript.language_code
-                except:
+                except Exception:
                     continue
 
             raise TranscriptNotAvailableError(f"No transcript available for video {video_id}")
@@ -92,8 +92,8 @@ class YouTubeTranscript:
         text_parts = []
         for entry in transcript_data:
             # Handle both dict and object formats
-            if hasattr(entry, 'text'):
+            if hasattr(entry, "text"):
                 text_parts.append(entry.text.strip())
-            elif isinstance(entry, dict) and 'text' in entry:
-                text_parts.append(entry['text'].strip())
+            elif isinstance(entry, dict) and "text" in entry:
+                text_parts.append(entry["text"].strip())
         return " ".join(text_parts)

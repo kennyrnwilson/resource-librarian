@@ -141,9 +141,7 @@ def test_video_list_filter_by_channel(tmp_path):
     library_path = tmp_path / "library"
     ResourceLibrary.initialize(library_path)
 
-    create_test_video(
-        library_path, "abc123", "AI Introduction", "Tech Channel", categories=["AI"]
-    )
+    create_test_video(library_path, "abc123", "AI Introduction", "Tech Channel", categories=["AI"])
     create_test_video(
         library_path, "def456", "Python Tutorial", "Code Academy", categories=["Programming"]
     )
@@ -186,9 +184,7 @@ def test_video_list_filter_by_tag(tmp_path):
     create_test_video(
         library_path, "abc123", "AI Introduction", "Tech Channel", tags=["beginner", "ai"]
     )
-    create_test_video(
-        library_path, "def456", "Advanced ML", "ML Academy", tags=["advanced", "ml"]
-    )
+    create_test_video(library_path, "def456", "Advanced ML", "ML Academy", tags=["advanced", "ml"])
 
     result = runner.invoke(
         app, ["video", "list", "--library", str(library_path), "--tag", "beginner"]
@@ -283,9 +279,7 @@ def test_video_list_no_matches(tmp_path):
 
 def test_video_list_library_not_found(tmp_path):
     """Test 'rl video list' with non-existent library."""
-    result = runner.invoke(
-        app, ["video", "list", "--library", str(tmp_path / "nonexistent")]
-    )
+    result = runner.invoke(app, ["video", "list", "--library", str(tmp_path / "nonexistent")])
 
     assert result.exit_code == 1
     assert "Not a valid Resource Library" in result.stdout
@@ -384,6 +378,7 @@ def test_video_fetch_shows_not_implemented(tmp_path):
 
     # Make sure YOUTUBE_API_KEY is not set
     import os
+
     old_key = os.environ.get("YOUTUBE_API_KEY")
     if old_key:
         del os.environ["YOUTUBE_API_KEY"]
@@ -481,6 +476,7 @@ def test_video_fetch_with_categories_and_tags(tmp_path):
 
     # Make sure API key is not set (will fail, but we can test arg parsing)
     import os
+
     old_key = os.environ.get("YOUTUBE_API_KEY")
     if old_key:
         del os.environ["YOUTUBE_API_KEY"]
@@ -535,9 +531,10 @@ def test_video_fetch_successfully_adds_video_with_mocks(tmp_path):
     mock_transcript = "This is a test transcript."
 
     # Mock the YouTube API and Transcript classes
-    with patch("resourcelibrarian.sources.video_ingestion.YouTubeAPI") as MockAPI, \
-         patch("resourcelibrarian.sources.video_ingestion.YouTubeTranscript") as MockTranscript:
-
+    with (
+        patch("resourcelibrarian.sources.video_ingestion.YouTubeAPI") as MockAPI,
+        patch("resourcelibrarian.sources.video_ingestion.YouTubeTranscript") as MockTranscript,
+    ):
         # Configure mocks
         mock_api_instance = MagicMock()
         mock_api_instance.fetch_single_video.return_value = mock_metadata

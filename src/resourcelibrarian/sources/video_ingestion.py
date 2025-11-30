@@ -176,9 +176,7 @@ class VideoIngestion:
             published_str = video_metadata.get("publishedAt")
             if published_str:
                 try:
-                    published_at = datetime.fromisoformat(
-                        published_str.replace("Z", "+00:00")
-                    )
+                    published_at = datetime.fromisoformat(published_str.replace("Z", "+00:00"))
                 except (ValueError, AttributeError):
                     pass
 
@@ -238,9 +236,7 @@ class VideoIngestion:
         video_id = video_metadata.get("videoId") or video_metadata.get("video_id")
         title = video_metadata.get("title")
         channel_id = video_metadata.get("channelId") or video_metadata.get("channel_id")
-        channel_title = video_metadata.get("channelTitle") or video_metadata.get(
-            "channel_title"
-        )
+        channel_title = video_metadata.get("channelTitle") or video_metadata.get("channel_title")
 
         if not all([video_id, title, channel_id, channel_title]):
             raise ValueError("Missing required video metadata fields")
@@ -276,9 +272,7 @@ class VideoIngestion:
             published_str = video_metadata.get("publishedAt") or video_metadata.get("published_at")
             if published_str:
                 try:
-                    published_at = datetime.fromisoformat(
-                        published_str.replace("Z", "+00:00")
-                    )
+                    published_at = datetime.fromisoformat(published_str.replace("Z", "+00:00"))
                 except (ValueError, AttributeError):
                     pass
 

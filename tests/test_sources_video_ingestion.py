@@ -1,6 +1,5 @@
 """Tests for video ingestion functionality."""
 
-
 import pytest
 
 from resourcelibrarian.sources.video_ingestion import (
@@ -50,10 +49,7 @@ def test_extract_video_id():
 def test_create_video_folder_name():
     """Test video folder name creation."""
     assert create_video_folder_name("abc123def45", "Test Video") == "abc123def45__test-video"
-    assert (
-        create_video_folder_name("xyz789", "Another Test!")
-        == "xyz789__another-test"
-    )
+    assert create_video_folder_name("xyz789", "Another Test!") == "xyz789__another-test"
 
     # Test long title truncation
     long_title = "A" * 100
@@ -63,14 +59,8 @@ def test_create_video_folder_name():
 
 def test_create_channel_folder_name():
     """Test channel folder name creation."""
-    assert (
-        create_channel_folder_name("UC123456", "Tech Channel")
-        == "tech-channel__UC123456"
-    )
-    assert (
-        create_channel_folder_name("UC789xyz", "Cool Videos!")
-        == "cool-videos__UC789xyz"
-    )
+    assert create_channel_folder_name("UC123456", "Tech Channel") == "tech-channel__UC123456"
+    assert create_channel_folder_name("UC789xyz", "Cool Videos!") == "cool-videos__UC789xyz"
 
     # Test long channel name truncation
     long_channel = "B" * 100

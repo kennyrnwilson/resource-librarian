@@ -46,9 +46,9 @@ class YouTubeAPI:
             YouTubeAPIError: If video not found or API error
         """
         try:
-            response = self.youtube.videos().list(
-                part="snippet,contentDetails", id=video_id
-            ).execute()
+            response = (
+                self.youtube.videos().list(part="snippet,contentDetails", id=video_id).execute()
+            )
 
             if not response.get("items"):
                 raise YouTubeAPIError(f"Video not found: {video_id}")

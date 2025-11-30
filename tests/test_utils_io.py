@@ -179,9 +179,7 @@ def test_save_and_load_book_manifest(tmp_path):
 
 def test_save_book_manifest_creates_folder(tmp_path):
     """Test that save_book_manifest creates the folder."""
-    manifest = BookManifest(
-        title="Test Book", author="Test Author", source_folder="test-book"
-    )
+    manifest = BookManifest(title="Test Book", author="Test Author", source_folder="test-book")
 
     book_folder = tmp_path / "new" / "book"
     save_book_manifest(manifest, book_folder)

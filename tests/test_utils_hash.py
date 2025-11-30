@@ -125,7 +125,7 @@ def test_compute_file_hash_different_files(tmp_path):
 def test_compute_file_hash_binary_file(tmp_path):
     """Test hashing a binary file."""
     binary_file = tmp_path / "binary.dat"
-    binary_file.write_bytes(b"\x00\x01\x02\x03\xFF\xFE\xFD")
+    binary_file.write_bytes(b"\x00\x01\x02\x03\xff\xfe\xfd")
 
     hash_result = compute_file_hash(binary_file)
 

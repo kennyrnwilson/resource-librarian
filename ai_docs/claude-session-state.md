@@ -2,13 +2,28 @@
 
 **Project:** resource-librarian
 **Last Updated:** 2025-11-29
-**Status:** Phase 5+ COMPLETE ✅ - Enhanced Index Generation
+**Status:** Documentation Phase Complete ✅
 
 ## Current Context
 
-Phase 5+ (Enhanced Index Generation) has been successfully completed with all 191 tests passing.
+Working on comprehensive developer documentation in the docs/ folder.
 
-**Latest Session Accomplishments (2025-11-29):**
+**Latest Session Accomplishments (2025-11-29 - Documentation Session):**
+- ✅ Fixed README.md folder structure rendering (removed mermaid diagram, added text format)
+- ✅ Created comprehensive documentation plan (6 phases)
+- ✅ Phase 1: Foundation Docs
+  - Created docs/README.md - Documentation hub with navigation
+  - Created docs/GETTING_STARTED.md - Developer onboarding guide (12KB)
+  - Created docs/DEPENDENCIES.md - All 12 packages with rationale (16KB)
+- ✅ Phase 2: Architecture & Parsing
+  - Created docs/ARCHITECTURE.md - System architecture with mermaid diagrams (19KB)
+  - Created docs/PARSING.md - Document parsing details (17KB)
+- ✅ Removed all CONTRIBUTING.md references (per user request)
+- ✅ Simplified high-level architecture diagram to show only layers
+- ✅ Improved diagram colors for dark theme visibility
+- ✅ Added links to official docs for Typer, Rich, PyMuPDF, ebooklib, BeautifulSoup4, YouTube APIs
+
+**Previous Session Accomplishments (2025-11-29):**
 - ✅ Completely rewrote IndexGenerator to match original polished format
 - ✅ Added root README.md with emojis, statistics, and Quick Start guide
 - ✅ Enhanced all index files with rich formatting and navigation breadcrumbs

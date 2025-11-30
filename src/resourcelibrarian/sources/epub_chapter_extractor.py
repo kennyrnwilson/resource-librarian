@@ -81,7 +81,7 @@ class EpubChapterExtractor:
             title = " ".join(word.capitalize() for word in title.split())
             return title
 
-        return f"Chapter {chapter_num + 1}"
+        return "Untitled Chapter"
 
     def _is_front_matter(self, title: str, content: str) -> bool:
         """Check if this is front matter to skip.
