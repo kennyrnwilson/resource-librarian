@@ -710,3 +710,242 @@ def test_book_import_folder_no_book_files(tmp_path):
 
     assert result.exit_code == 1
     assert "No book format files found" in result.stdout
+
+
+def test_book_add_format_pdf_to_existing_epub(tmp_path):
+    """Test adding PDF format to a book that has markdown."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create a markdown file
+    md_file = tmp_path / "test-book.md"
+    md_file.write_text("# Test Book\n\nBy John Doe\n\nContent here", encoding="utf-8")
+
+    # Add the markdown book first
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add",
+            str(md_file),
+            "--library",
+            str(library_path),
+            "--title",
+            "Test Book",
+            "--author",
+            "John Doe",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Create a PDF file to add
+    pdf_file = tmp_path / "test-book.pdf"
+    pdf_file.write_text("%PDF-1.4\nPDF content", encoding="utf-8")
+
+    # Add PDF format to existing book
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "Test Book",
+            str(pdf_file),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Successfully added format" in result.stdout
+    assert "Test Book" in result.stdout
+    assert "John Doe" in result.stdout
+
+    # Verify both formats exist
+    book_folder = library_path / "books" / "doe-john" / "test-book"
+    assert (book_folder / "full-book-formats" / "test-book.md").exists()
+    assert (book_folder / "full-book-formats" / "test-book.pdf").exists()
+
+    # Verify manifest updated
+    manifest_path = book_folder / "manifest.yaml"
+    with open(manifest_path) as f:
+        manifest_data = yaml.safe_load(f)
+    assert "markdown" in manifest_data["formats"]
+    assert "pdf" in manifest_data["formats"]
+
+
+def test_book_add_format_epub_to_existing_pdf(tmp_path):
+    """Test adding EPUB format to a book that has PDF."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create a PDF file
+    pdf_file = tmp_path / "python-guide.pdf"
+    pdf_file.write_text("%PDF-1.4\nPDF content", encoding="utf-8")
+
+    # Add the PDF book first (with markdown so it works)
+    md_file = tmp_path / "python-guide.md"
+    md_file.write_text("# Python Guide\n\nBy Jane Smith\n\nContent here", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add",
+            str(md_file),
+            "--library",
+            str(library_path),
+            "--title",
+            "Python Guide",
+            "--author",
+            "Jane Smith",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Now add the PDF format
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "Python Guide",
+            str(pdf_file),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Successfully added format" in result.stdout
+
+
+def test_book_add_format_duplicate_format(tmp_path):
+    """Test that adding duplicate format fails."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create and add book
+    md_file = tmp_path / "book.md"
+    md_file.write_text("# My Book\n\nBy Author\n\nContent", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add",
+            str(md_file),
+            "--library",
+            str(library_path),
+            "--title",
+            "My Book",
+            "--author",
+            "Author",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Try to add another markdown file (duplicate format)
+    md_file2 = tmp_path / "book2.md"
+    md_file2.write_text("# My Book\n\nBy Author\n\nMore content", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "My Book",
+            str(md_file2),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    # Should fail because markdown format already exists
+    assert result.exit_code == 1
+
+
+def test_book_add_format_book_not_found(tmp_path):
+    """Test adding format to non-existent book."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    pdf_file = tmp_path / "test.pdf"
+    pdf_file.write_text("%PDF-1.4\nContent", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "Nonexistent Book",
+            str(pdf_file),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Book not found" in result.stdout
+
+
+def test_book_add_format_file_not_found(tmp_path):
+    """Test adding format with non-existent file."""
+    library_path = tmp_path / "library"
+    ResourceLibrary.initialize(library_path)
+
+    # Create a book first
+    md_file = tmp_path / "book.md"
+    md_file.write_text("# Test Book\n\nBy Author\n\nContent", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add",
+            str(md_file),
+            "--library",
+            str(library_path),
+            "--title",
+            "Test Book",
+            "--author",
+            "Author",
+        ],
+    )
+    assert result.exit_code == 0
+
+    # Try to add non-existent file
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "Test Book",
+            str(tmp_path / "nonexistent.pdf"),
+            "--library",
+            str(library_path),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "File not found" in result.stdout
+
+
+def test_book_add_format_library_not_found(tmp_path):
+    """Test adding format when library doesn't exist."""
+    pdf_file = tmp_path / "test.pdf"
+    pdf_file.write_text("%PDF-1.4\nContent", encoding="utf-8")
+
+    result = runner.invoke(
+        app,
+        [
+            "book",
+            "add-format",
+            "Test Book",
+            str(pdf_file),
+            "--library",
+            str(tmp_path / "nonexistent-library"),
+        ],
+    )
+
+    assert result.exit_code == 1
+    assert "Not a valid Resource Library" in result.stdout

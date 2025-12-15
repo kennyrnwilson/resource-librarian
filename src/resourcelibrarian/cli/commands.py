@@ -431,6 +431,138 @@ def book_add(
         raise typer.Exit(1)
 
 
+@book_app.command("add-format")
+def book_add_format(
+    title: str = typer.Argument(..., help="Title of the existing book"),
+    file_path: str = typer.Argument(..., help="Path to format file (PDF or EPUB)"),
+    library_path: str = typer.Option(
+        ".",
+        "--library",
+        "-l",
+        help="Path to the library (default: current directory)",
+    ),
+    rebuild_catalog: bool = typer.Option(
+        False,
+        "--rebuild-catalog",
+        "-r",
+        help="Rebuild catalog and indices after adding format",
+    ),
+):
+    """Add a new format (PDF or EPUB) to an existing book.
+
+    Use this command to add additional formats to a book that's already in your library.
+    For example, if you have an EPUB in the library, you can add the PDF version.
+
+    Examples:
+        rl book add-format "Python Programming" book.pdf
+        rl book add-format "The Great Gatsby" gatsby.epub --library ~/my-library
+        rl book add-format "Python Guide" guide.pdf --rebuild-catalog
+    """
+    try:
+        # Import here to avoid circular dependencies
+        from resourcelibrarian.sources.book_ingestion import BookIngestion
+
+        # Validate file exists
+        source_file = Path(file_path)
+        if not source_file.exists():
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] File not found: {file_path}\n\n"
+                    "Please check the file path and try again.",
+                    title="[bold red]File Not Found[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Validate library exists
+        library = ResourceLibrary(library_path)
+        if not library.exists():
+            console.print()
+            console.print(
+                Panel.fit(
+                    f"[red]✗[/red] Not a valid Resource Library: {library_path}\n\n"
+                    "Run [bold cyan]rl init[/bold cyan] to create a new library, or "
+                    "specify an existing library with [bold cyan]--library[/bold cyan].",
+                    title="[bold red]Library Not Found[/bold red]",
+                    border_style="red",
+                )
+            )
+            console.print()
+            raise typer.Exit(1)
+
+        # Add format to book
+        ingestion = BookIngestion(library.root)
+
+        with console.status(f"[bold cyan]Adding format to '{title}'...", spinner="dots"):
+            book = ingestion.add_format(title=title, file_path=source_file)
+
+        # Display success message
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[green]✓[/green] Successfully added format to book!\n\n"
+                f"[bold]Title:[/bold] {book.title}\n"
+                f"[bold]Author:[/bold] {book.author}\n"
+                f"[bold]Formats:[/bold] {', '.join(book.list_formats())}\n"
+                f"[bold]Location:[/bold] {book.source_folder}",
+                title="[bold green]Format Added[/bold green]",
+                border_style="green",
+            )
+        )
+        console.print()
+
+        # Rebuild catalog if requested
+        if rebuild_catalog:
+            with console.status("[bold cyan]Rebuilding catalog and indices...", spinner="dots"):
+                from resourcelibrarian.core.catalog_manager import CatalogManager
+                from resourcelibrarian.core.index_generator import IndexGenerator
+
+                catalog_mgr = CatalogManager(library.root)
+                catalog = catalog_mgr.rebuild_catalog()
+
+                index_gen = IndexGenerator(library.root)
+                index_gen.generate_all_indices(catalog)
+
+            console.print("[green]✓[/green] Catalog and indices rebuilt successfully\n")
+
+    except FileNotFoundError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}",
+                title="[bold red]Not Found[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except ValueError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] An unexpected error occurred:\n\n{str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+
+
 @book_app.command("import-folder")
 def book_import_folder(
     folder_path: str = typer.Argument(..., help="Path to structured book folder"),

@@ -435,3 +435,94 @@ class BookIngestion:
         book = Book(folder_path=book_folder, manifest=manifest)
 
         return book
+
+    def add_format(self, title: str, file_path: Path) -> Book:
+        """Add a new format to an existing book.
+
+        Args:
+            title: Book title (used to find existing book)
+            file_path: Path to the new format file
+
+        Returns:
+            Updated Book instance
+
+        Raises:
+            FileNotFoundError: If format file or book not found
+            ValueError: If format is unsupported or already exists
+        """
+        file_path = Path(file_path)
+
+        # Validate file exists
+        if not file_path.exists():
+            raise FileNotFoundError(f"Format file not found: {file_path}")
+
+        # Detect format
+        format_type = BookParser.detect_format(file_path)
+        if not format_type or format_type not in ["pdf", "epub"]:
+            raise ValueError(f"Unsupported format: {file_path.suffix}")
+
+        # Find existing book by title (case-insensitive search)
+        title_lower = title.lower()
+        book_folder = None
+
+        for author_dir in self.books_dir.iterdir():
+            if not author_dir.is_dir():
+                continue
+            for potential_book_dir in author_dir.iterdir():
+                if not potential_book_dir.is_dir():
+                    continue
+
+                # Check if manifest exists
+                manifest_path = potential_book_dir / "manifest.yaml"
+                if not manifest_path.exists():
+                    continue
+
+                # Load manifest and check title
+                from resourcelibrarian.utils import load_book_manifest
+
+                try:
+                    manifest = load_book_manifest(potential_book_dir)
+                    if manifest.title.lower() == title_lower:
+                        book_folder = potential_book_dir
+                        break
+                except Exception:
+                    continue
+
+            if book_folder:
+                break
+
+        if not book_folder:
+            raise FileNotFoundError(
+                f"Book not found with title: {title}. Use 'rl book list' to see available books."
+            )
+
+        # Load existing manifest
+        from resourcelibrarian.utils import load_book_manifest
+
+        manifest = load_book_manifest(book_folder)
+
+        # Check if format already exists
+        if format_type in manifest.formats:
+            raise ValueError(
+                f"Book already has {format_type} format at: {manifest.formats[format_type]}"
+            )
+
+        # Create full-book-formats directory if it doesn't exist
+        full_book_dir = book_folder / "full-book-formats"
+        full_book_dir.mkdir(exist_ok=True)
+
+        # Copy new format file
+        filename = f"{slugify(manifest.title)}.{format_type}"
+        dest_path = full_book_dir / filename
+        shutil.copy(file_path, dest_path)
+
+        # Update manifest with new format
+        manifest.formats[format_type] = f"full-book-formats/{filename}"
+
+        # Save updated manifest
+        save_book_manifest(manifest, book_folder)
+
+        # Return updated Book instance
+        book = Book(folder_path=book_folder, manifest=manifest)
+
+        return book
