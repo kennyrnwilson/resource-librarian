@@ -1,5 +1,7 @@
 # Resource Librarian
 
+**Author:** [Kenny Wilson](https://github.com/kennyrnwilson)
+
 A Python library for creating, maintaining, and indexing a personal library of digital resources. Organize your books and YouTube video transcripts in a way that's perfect for processing with modern AI systems.
 
 ## What is Resource Librarian?
