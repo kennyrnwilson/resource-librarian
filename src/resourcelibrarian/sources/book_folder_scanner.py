@@ -33,8 +33,13 @@ class BookFolderScanner:
 
         self.folder_name = self.folder_path.name
 
-    def scan(self) -> dict[str, list]:
+    def scan(self, flexible: bool = False) -> dict[str, list]:
         """Scan folder and categorize files.
+
+        Args:
+            flexible: If True, detect book files even if they don't match folder name exactly.
+                     In flexible mode, any book format files that don't appear to be summaries
+                     will be treated as main book files.
 
         Returns:
             Dict with:
@@ -70,6 +75,21 @@ class BookFolderScanner:
             if summary_info:
                 result["summaries"].append(summary_info + (file_path,))
                 continue
+
+            # In flexible mode, treat any book format files as potential main files
+            if flexible and ext in [".pdf", ".epub", ".md", ".txt"]:
+                # Skip files that look like metadata or supporting files
+                skip_patterns = [
+                    "cover",
+                    "metadata",
+                    "toc",
+                    "table-of-contents",
+                    "original_epub",
+                ]
+                if not any(pattern in stem.lower() for pattern in skip_patterns):
+                    format_name = ext[1:]  # Remove the dot
+                    result["book_formats"].append((format_name, file_path))
+                    continue
 
             # Everything else
             result["other_files"].append(file_path)

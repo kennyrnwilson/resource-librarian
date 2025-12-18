@@ -246,7 +246,41 @@ rl video get "Video Title"
 rl video get "Video Title" --output /path/to/transcript.txt
 ```
 
-### 6. Manage the Catalog
+### 6. Export Markdown to PDF
+
+The `export-pdf` command works in two modes:
+
+#### Mode 1: Convert Any Markdown File (Standalone)
+
+```bash
+# Convert any markdown file to PDF (output goes to same directory)
+rl book export-pdf ./README.md
+
+# Specify custom output path
+rl book export-pdf ./notes.md --output ~/Documents/notes.pdf
+
+# Customize font size and metadata
+rl book export-pdf ./document.md --font-size 14 --title "My Document" --author "John Doe"
+```
+
+**This mode doesn't require a library** - just point it at any `.md` file and it creates a PDF in the same directory.
+
+#### Mode 2: Export from Library
+
+```bash
+# Export a book from your library by title
+rl book export-pdf "Python Programming"
+
+# Specify library location if not in current directory
+rl book export-pdf "Python Programming" --library ~/my-library
+
+# Customize output
+rl book export-pdf "Data Science" --output ~/Documents/datascience.pdf --font-size 14
+```
+
+**Note:** Library mode requires the book to have a markdown format available. If you added an EPUB file, the markdown version is automatically extracted during import.
+
+### 7. Manage the Catalog
 
 ```bash
 # Rebuild catalog from filesystem (if it gets out of sync)
@@ -321,8 +355,11 @@ rl catalog --help   # Catalog commands
 
 **Book Commands:**
 - `rl book add <file>` - Add a book to the library
+- `rl book add-format <title> <file>` - Add a new format to an existing book
+- `rl book import-folder <folder>` - Import a book from a structured folder
 - `rl book list` - List all books (with filters)
 - `rl book get <title>` - Retrieve book content
+- `rl book export-pdf <title>` - Export book's markdown to PDF
 
 **Video Commands:**
 - `rl video fetch <url>` - Fetch a YouTube video transcript
@@ -400,7 +437,3 @@ See [RELEASE.md](RELEASE.md) for detailed instructions on:
 MIT License - see [LICENSE](LICENSE) file for details.
 
 Copyright (c) 2024 Kenny Wilson
-
-## Author
-
-Kenny Wilson

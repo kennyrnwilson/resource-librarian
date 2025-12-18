@@ -272,6 +272,7 @@ class BookIngestion:
         tags: list[str] | None = None,
         isbn: str | None = None,
         prefer_format: str = "epub",
+        flexible_scan: bool = False,
     ) -> Book:
         """Add a book from a structured folder.
 
@@ -288,6 +289,7 @@ class BookIngestion:
             tags: List of tags
             isbn: ISBN number
             prefer_format: Preferred format for text extraction
+            flexible_scan: If True, detect book files even if they don't match folder name
 
         Returns:
             Book instance
@@ -299,7 +301,7 @@ class BookIngestion:
 
         # Scan the folder
         scanner = BookFolderScanner(folder_path)
-        scan_result = scanner.scan()
+        scan_result = scanner.scan(flexible=flexible_scan)
 
         if not scan_result["book_formats"]:
             raise ValueError(f"No book format files found in {folder_path}")

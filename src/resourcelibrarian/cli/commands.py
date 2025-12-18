@@ -5,6 +5,7 @@ Uses:
 - Rich: https://rich.readthedocs.io/ - Beautiful terminal output
 """
 
+import os
 from pathlib import Path
 from typing import Optional
 
@@ -17,6 +18,27 @@ from resourcelibrarian.library import ResourceLibrary
 
 # Version
 __version__ = "0.1.0"
+
+
+def get_library_path(provided_path: str | None) -> str:
+    """Get library path from provided argument or RESOURCE_LIBRARY env variable.
+
+    Args:
+        provided_path: Library path provided via --library option
+
+    Returns:
+        Library path to use (from argument, env variable, or current directory)
+    """
+    if provided_path:
+        return provided_path
+
+    # Check for RESOURCE_LIBRARY environment variable
+    env_library = os.environ.get("RESOURCE_LIBRARY")
+    if env_library:
+        return env_library
+
+    # Default to current directory
+    return "."
 
 
 def version_callback(value: bool):
@@ -132,11 +154,11 @@ def init(
 
 @book_app.command("list")
 def book_list(
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     author: Optional[str] = typer.Option(
         None,
@@ -171,6 +193,12 @@ def book_list(
         rl book list --tag "beginner" --author "Jones"
     """
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Load library
         library = ResourceLibrary(library_path)
         if not library.exists():
@@ -257,11 +285,11 @@ def book_list(
 @book_app.command("add")
 def book_add(
     file_path: str = typer.Argument(..., help="Path to book file (PDF, EPUB, or Markdown)"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     title: Optional[str] = typer.Option(
         None,
@@ -321,6 +349,9 @@ def book_add(
             )
             console.print()
             raise typer.Exit(1)
+
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
 
         # Load library
         library = ResourceLibrary(library_path)
@@ -435,11 +466,11 @@ def book_add(
 def book_add_format(
     title: str = typer.Argument(..., help="Title of the existing book"),
     file_path: str = typer.Argument(..., help="Path to format file (PDF or EPUB)"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     rebuild_catalog: bool = typer.Option(
         False,
@@ -476,6 +507,9 @@ def book_add_format(
             )
             console.print()
             raise typer.Exit(1)
+
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
 
         # Validate library exists
         library = ResourceLibrary(library_path)
@@ -566,11 +600,11 @@ def book_add_format(
 @book_app.command("import-folder")
 def book_import_folder(
     folder_path: str = typer.Argument(..., help="Path to structured book folder"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     title: Optional[str] = typer.Option(
         None,
@@ -600,6 +634,12 @@ def book_import_folder(
         "--isbn",
         help="ISBN number",
     ),
+    flexible_scan: bool = typer.Option(
+        False,
+        "--flexible-scan",
+        "-f",
+        help="Detect book files even if they don't exactly match folder name",
+    ),
 ):
     """Import a book from a structured folder.
 
@@ -620,10 +660,14 @@ def book_import_folder(
     - Extract chapters from EPUB files
     - Auto-detect metadata from EPUB or text content
 
+    Note: By default, book files must match the folder name exactly (e.g., my-book.epub
+    in folder my-book/). Use --flexible-scan to detect book files with different names.
+
     Examples:
         rl book import-folder /path/to/my-book-folder
         rl book import-folder ./books/python-programming --categories "Programming,Python"
         rl book import-folder ./deep-learning --title "Deep Learning" --author "Ian Goodfellow"
+        rl book import-folder ./books/learning-opentelemetry --flexible-scan
     """
     try:
         # Import here to avoid circular dependencies
@@ -656,6 +700,9 @@ def book_import_folder(
             )
             console.print()
             raise typer.Exit(1)
+
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
 
         # Load library
         library = ResourceLibrary(library_path)
@@ -691,6 +738,7 @@ def book_import_folder(
             categories=category_list,
             tags=tag_list,
             isbn=isbn,
+            flexible_scan=flexible_scan,
         )
 
         # Update catalog and regenerate indices
@@ -769,14 +817,280 @@ def book_import_folder(
         raise typer.Exit(1)
 
 
+@book_app.command("export-pdf")
+def book_export_pdf(
+    source: str = typer.Argument(..., help="Book title (in library) or path to markdown file"),
+    library_path: str = typer.Option(
+        None,
+        "--library",
+        "-l",
+        help="Path to the library (only needed if using book title)",
+    ),
+    output: str = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output PDF file path (default: same directory as source with .pdf extension)",
+    ),
+    font_size: int = typer.Option(
+        12,
+        "--font-size",
+        "-s",
+        help="Font size for body text",
+    ),
+    title: Optional[str] = typer.Option(
+        None,
+        "--title",
+        "-t",
+        help="PDF title metadata (auto-detected from filename if not provided)",
+    ),
+    author: Optional[str] = typer.Option(
+        None,
+        "--author",
+        "-a",
+        help="PDF author metadata",
+    ),
+):
+    """Export markdown content to PDF.
+
+    This command works in two modes:
+
+    1. Library Mode: Specify a book title from your library
+       rl book export-pdf "Python Programming"
+
+    2. Standalone Mode: Specify a path to any markdown file
+       rl book export-pdf /path/to/file.md
+
+    The PDF will include proper formatting for headings and paragraphs.
+
+    Examples:
+        # From library
+        rl book export-pdf "Python Programming"
+        rl book export-pdf "Python Programming" --library ~/my-library
+
+        # Standalone markdown file
+        rl book export-pdf ./README.md
+        rl book export-pdf ./notes.md --output ~/Documents/notes.pdf
+        rl book export-pdf ./document.md --font-size 14 --title "My Document"
+    """
+    try:
+        from resourcelibrarian.utils.pdf_converter import convert_markdown_to_pdf
+
+        # Check if source is a file path
+        source_path = Path(source)
+        is_file_path = source_path.exists() and source_path.is_file()
+
+        if is_file_path:
+            # Standalone mode: convert markdown file directly
+            markdown_path = source_path
+
+            # Validate it's a markdown file
+            if markdown_path.suffix.lower() not in [".md", ".markdown"]:
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[red]✗[/red] File must be a markdown file (.md or .markdown)\n\n"
+                        f"[dim]Provided file:[/dim] {markdown_path}\n"
+                        f"[dim]Extension:[/dim] {markdown_path.suffix}",
+                        title="[bold red]Invalid File Type[/bold red]",
+                        border_style="red",
+                    )
+                )
+                console.print()
+                raise typer.Exit(1)
+
+            # Determine output path
+            if output:
+                output_path = Path(output)
+            else:
+                # Default: same directory as source, replace extension with .pdf
+                output_path = markdown_path.with_suffix(".pdf")
+
+            # Use provided title/author or derive from filename
+            pdf_title = title or markdown_path.stem.replace("-", " ").replace("_", " ").title()
+            pdf_author = author
+
+            # Show processing message
+            console.print()
+            console.print(f"[cyan]Converting to PDF:[/cyan] {markdown_path.name}")
+            console.print()
+
+            # Convert to PDF
+            with console.status("[bold cyan]Generating PDF...", spinner="dots"):
+                convert_markdown_to_pdf(
+                    markdown_path=markdown_path,
+                    output_path=output_path,
+                    title=pdf_title,
+                    author=pdf_author,
+                    font_size=font_size,
+                )
+
+            # Success message
+            console.print(
+                Panel.fit(
+                    f"[green]✓[/green] PDF created successfully!\n\n"
+                    f"[bold]Source:[/bold] {markdown_path}\n"
+                    f"[bold]Output:[/bold] {output_path.absolute()}\n"
+                    f"[bold]Size:[/bold] {output_path.stat().st_size:,} bytes",
+                    title="[bold green]Success[/bold green]",
+                    border_style="green",
+                )
+            )
+            console.print()
+
+        else:
+            # Library mode: lookup book by title
+            # Get library path from argument, env variable, or default
+            library_path = get_library_path(library_path)
+
+            library = ResourceLibrary(library_path)
+            if not library.exists():
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[red]✗[/red] '{source}' is not a file and not found in library\n\n"
+                        f"[dim]If you meant a book title:[/dim]\n"
+                        f"  • Make sure you're in a library directory, or\n"
+                        f"  • Use --library to specify the library path\n\n"
+                        f"[dim]If you meant a markdown file:[/dim]\n"
+                        f"  • Check the file path is correct\n"
+                        f"  • Make sure the file has .md or .markdown extension",
+                        title="[bold red]Source Not Found[/bold red]",
+                        border_style="red",
+                    )
+                )
+                console.print()
+                raise typer.Exit(1)
+
+            # Load catalog
+            catalog = library.load_catalog()
+
+            # Find book
+            book = catalog.find_book(source)
+            if not book:
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[red]✗[/red] Book not found: {source}\n\n"
+                        f"[dim]Try:[/dim]\n"
+                        f"  [cyan]rl book list[/cyan] - to see all books\n"
+                        f'  [cyan]rl book list --title "{source.split()[0]}"[/cyan] - to search',
+                        title="[bold red]Book Not Found[/bold red]",
+                        border_style="red",
+                    )
+                )
+                console.print()
+                raise typer.Exit(1)
+
+            # Check if markdown format is available
+            available_formats = book.list_formats()
+            if "markdown" not in available_formats:
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[red]✗[/red] Markdown format not available for: {book.title}\n\n"
+                        f"[dim]Available formats:[/dim] {', '.join(available_formats)}\n\n"
+                        f"[dim]This command requires markdown format.[/dim]",
+                        title="[bold red]Format Not Available[/bold red]",
+                        border_style="red",
+                    )
+                )
+                console.print()
+                raise typer.Exit(1)
+
+            # Get markdown file path
+            markdown_path = book.get_format_path("markdown")
+            if not markdown_path or not markdown_path.exists():
+                console.print()
+                console.print(
+                    Panel.fit(
+                        f"[red]✗[/red] Markdown file not found: {markdown_path}",
+                        title="[bold red]File Not Found[/bold red]",
+                        border_style="red",
+                    )
+                )
+                console.print()
+                raise typer.Exit(1)
+
+            # Determine output path
+            if output:
+                output_path = Path(output)
+            else:
+                # Default: same directory as markdown file with .pdf extension
+                output_path = markdown_path.with_suffix(".pdf")
+
+            # Show processing message
+            console.print()
+            console.print(f"[cyan]Converting to PDF:[/cyan] {book.title}")
+            console.print()
+
+            # Convert to PDF
+            with console.status("[bold cyan]Generating PDF...", spinner="dots"):
+                convert_markdown_to_pdf(
+                    markdown_path=markdown_path,
+                    output_path=output_path,
+                    title=title or book.title,
+                    author=author or book.author,
+                    font_size=font_size,
+                )
+
+            # Success message
+            console.print(
+                Panel.fit(
+                    f"[green]✓[/green] PDF created successfully!\n\n"
+                    f"[bold]Book:[/bold] {book.title}\n"
+                    f"[bold]Author:[/bold] {book.author}\n"
+                    f"[bold]Output:[/bold] {output_path.absolute()}\n"
+                    f"[bold]Size:[/bold] {output_path.stat().st_size:,} bytes",
+                    title="[bold green]Success[/bold green]",
+                    border_style="green",
+                )
+            )
+            console.print()
+
+    except FileNotFoundError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except ValueError as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] {str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+    except Exception as e:
+        console.print()
+        console.print(
+            Panel.fit(
+                f"[red]✗[/red] An unexpected error occurred:\n\n{str(e)}",
+                title="[bold red]Error[/bold red]",
+                border_style="red",
+            )
+        )
+        console.print()
+        raise typer.Exit(1)
+
+
 @book_app.command("get")
 def book_get(
     title: str = typer.Argument(..., help="Title of the book to retrieve"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     format_type: Optional[str] = typer.Option(
         None,
@@ -799,6 +1113,9 @@ def book_get(
         rl book get "Data Science" --format markdown
     """
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Load library
         library = ResourceLibrary(library_path)
         if not library.exists():
@@ -956,11 +1273,11 @@ def book_get(
 @video_app.command("fetch")
 def video_fetch(
     video_url: str = typer.Argument(..., help="YouTube video URL or ID"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     categories: Optional[str] = typer.Option(
         None,
@@ -1011,6 +1328,9 @@ def video_fetch(
             )
             console.print()
             raise typer.Exit(1)
+
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
 
         # Load library
         library = ResourceLibrary(library_path)
@@ -1107,11 +1427,11 @@ def video_fetch(
 
 @video_app.command("list")
 def video_list(
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     channel: Optional[str] = typer.Option(
         None,
@@ -1145,6 +1465,9 @@ def video_list(
         rl video list --tag "tutorial" --channel "DeepMind"
     """
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Load library
         library = ResourceLibrary(library_path)
         if not library.exists():
@@ -1232,11 +1555,11 @@ def video_list(
 @video_app.command("get")
 def video_get(
     identifier: str = typer.Argument(..., help="YouTube video ID or title to retrieve"),
-    library_path: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
     output: Optional[str] = typer.Option(
         None,
@@ -1253,6 +1576,9 @@ def video_get(
         rl video get dQw4w9WgXcQ --output transcript.txt
     """
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Load library
         library = ResourceLibrary(library_path)
         if not library.exists():
