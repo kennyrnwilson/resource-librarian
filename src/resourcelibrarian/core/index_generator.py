@@ -779,6 +779,16 @@ class IndexGenerator:
             "",
         ]
 
+        # Infographic section (if exists)
+        infographic_path = book.folder_path / "infographic.png"
+        if infographic_path.exists():
+            lines.append("## Summary Infographic")
+            lines.append("")
+            lines.append("![Book Summary Infographic](infographic.png)")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
+
         # Metadata section
         lines.append("## Metadata")
         lines.append("")
