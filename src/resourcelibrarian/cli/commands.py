@@ -1697,11 +1697,11 @@ def video_get(
 
 @catalog_app.command("rebuild")
 def catalog_rebuild(
-    library: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
 ):
     """Rebuild the library catalog and indices from filesystem.
@@ -1730,8 +1730,11 @@ def catalog_rebuild(
     console.print()
 
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Verify library exists
-        lib_path = Path(library).resolve()
+        lib_path = Path(library_path).resolve()
         lib = ResourceLibrary(lib_path)
 
         if not lib.exists():
@@ -1807,11 +1810,11 @@ def catalog_rebuild(
 
 @catalog_app.command("stats")
 def catalog_stats(
-    library: str = typer.Option(
-        ".",
+    library_path: Optional[str] = typer.Option(
+        None,
         "--library",
         "-l",
-        help="Path to the library (default: current directory)",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
     ),
 ):
     """Show library statistics from the catalog.
@@ -1831,8 +1834,11 @@ def catalog_stats(
     console.print()
 
     try:
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
         # Verify library exists
-        lib_path = Path(library).resolve()
+        lib_path = Path(library_path).resolve()
         lib = ResourceLibrary(lib_path)
 
         if not lib.exists():
@@ -1895,7 +1901,12 @@ def catalog_stats(
 
 @catalog_app.command("migrate")
 def catalog_migrate(
-    library: str = typer.Option(".", "--library", "-l", help="Path to the library (old format)"),
+    library_path: Optional[str] = typer.Option(
+        None,
+        "--library",
+        "-l",
+        help="Path to the library (default: RESOURCE_LIBRARY env variable or current directory)",
+    ),
 ):
     """Migrate an old library (.knowledgehub) to new format (catalog.yaml).
 
@@ -1911,7 +1922,10 @@ def catalog_migrate(
     console.print()
 
     try:
-        lib_path = Path(library).resolve()
+        # Get library path from argument, env variable, or default
+        library_path = get_library_path(library_path)
+
+        lib_path = Path(library_path).resolve()
 
         # Check if it's an old-style library
         old_metadata_dir = lib_path / ".knowledgehub"
